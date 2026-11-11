@@ -870,46 +870,35 @@ static void read_input(uint64_t *buttons, int32_t stick[4]) {
     if (keys[0] || keys[1] || keys[2] || keys[3]) player_used();
 }
 
-/* (Zelda: AchadoIA) correr no B: no Remake correr e segurar A (o toque de A rola). Segurando B com o analogico inclinado por
-   ZELDA_B_MS, o jogo recebe A segurado tambem (rola e corre, como segurando A); o toque de B segue sendo so o B (cancelar,
-   descer da escada). So com o Link sendo atualizado (o gancho do Link em hos_main.c: em jogo, nao no titulo), fora do menu
-   Insert, da camera livre e do voo. Desliga com correr_b=0 em <pasta>\zelda\config.ini */
+/* (Zelda: AchadoIA) correr no R: no Remake correr e segurar A (o toque de A rola). Segurando R com o analogico inclinado,
+   o jogo recebe A segurado (corre como segurando A) e nao recebe o R (o escudo nao sobe); R parado, sem o analogico,
+   continua sendo o R. O B nao muda nada (era o "correr no B": rolava e corria no B, removido a pedido). So com o Link
+   sendo atualizado (o gancho do Link em hos_main.c: em jogo, nao no titulo), fora do menu Insert, da camera livre e do
+   voo. Desliga com correr_r=0 em <pasta>\zelda\config.ini */
 volatile int64_t hos_zelda_link_ns;   /* hos_main.c: a ultima atualizacao do Link */
-#define ZELDA_B_MS 150
-static int zelda_b_dash_on(void) {
+static int zelda_r_dash_on(void) {
     static int on = -1;
     if (on < 0) {
         const char *hos_zelda_dir(void);
         char p[MAX_PATH], line[256];
-        snprintf(p, sizeof p, "%s\\config.ini", hos_zelda_dir());
+        snprintf(p, sizeof p, "%s\config.ini", hos_zelda_dir());
         on = 1;
         FILE *f = fopen(p, "r");
         if (f) {
             while (fgets(line, sizeof line, f))
-                if (!strncmp(line, "correr_b=", 9)) on = atoi(line + 9) != 0;
+                if (!strncmp(line, "correr_r=", 9)) on = atoi(line + 9) != 0;
             fclose(f);
         }
-        hos_log("zelda: correr no B %s (config.ini correr_b)", on ? "ligado" : "desligado");
+        hos_log("zelda: correr no R %s (config.ini correr_r)", on ? "ligado" : "desligado");
     }
     return on;
 }
-static uint64_t zelda_b_dash(uint64_t buttons, const int32_t stick[4], int blocked) {
-    static int64_t b_since;
-    static int dashing;
-    const int64_t now = hos_now_ns();
-    const int b = !!(buttons & (1ULL << B_B));
+static uint64_t zelda_r_dash(uint64_t buttons, const int32_t stick[4], int blocked) {
+    const int r = !!(buttons & (1ULL << B_R));
     const int tilted = (int64_t)stick[0] * stick[0] + (int64_t)stick[1] * stick[1] > (int64_t)16384 * 16384;
-    const int in_play = now - __atomic_load_n(&hos_zelda_link_ns, __ATOMIC_RELAXED) < 200000000LL;
-    if (!b || blocked || !in_play || !zelda_b_dash_on()) {
-        b_since = 0;
-        dashing = 0;
-        return buttons;
-    }
-    if (!b_since) b_since = now;
-    if (!dashing && tilted && now - b_since >= ZELDA_B_MS * 1000000LL) dashing = 1;
-    if (dashing && !tilted) dashing = 0, b_since = now;   /* (parou: um novo B segurado com o analogico recomeca) */
-    if (dashing) buttons |= 1ULL << B_A;
-    return buttons;
+    const int in_play = hos_now_ns() - __atomic_load_n(&hos_zelda_link_ns, __ATOMIC_RELAXED) < 200000000LL;
+    if (!r || !tilted || blocked || !in_play || !zelda_r_dash_on()) return buttons;
+    return (buttons & ~(1ULL << B_R)) | 1ULL << B_A;
 }
 
 static void vibration_send(uint64_t handle, uint64_t value);
@@ -961,7 +950,7 @@ static void npad_states(Ctx *c) {
             stick[0] = stick[1] = 0;
             buttons &= ~(climb | (1ULL << B_L));
         }
-        buttons = zelda_b_dash(buttons, stick, menu_open || free_camera || flying);
+        buttons = zelda_r_dash(buttons, stick, menu_open || free_camera || flying);
         __atomic_store_n(&flight_input, flight, __ATOMIC_RELAXED);
         __atomic_store_n(&move_stick_held, abs(stick[0]) > 4096 || abs(stick[1]) > 4096, __ATOMIC_RELAXED);
         __atomic_store_n(&free_camera_axes, axes, __ATOMIC_RELAXED);

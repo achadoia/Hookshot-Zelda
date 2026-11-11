@@ -99,7 +99,7 @@ munição com a quantidade; upgrades com o nível. *Tracker: opacidade* (10–10
 
 | | |
 |---|---|
-| **Correr no B** | Segurando B com o analógico inclinado o Link corre/rola como segurando A. O toque de B continua cancelando. (`correr_b=0` em `zelda\config.ini` desliga.) |
+| **Correr no R** | Segurando R com o analógico inclinado o Link corre como segurando A (sem subir o escudo). O B fica só B. (`correr_r=0` em `zelda\config.ini` desliga.) |
 | **Menu do Hookshot pelo controle** | **L3 + R3** abre e fecha o menu do F1. *Controles > Menu do Hookshot: controle*: L3 + R3, L + R + Select ou ZL + ZR + Select. |
 | **Bracelete Goron** | No randomizer, com a bolsa de bombas e sem o bracelete, ele entra junto (o Remake só deixa puxar a bomba com o bracelete). |
 

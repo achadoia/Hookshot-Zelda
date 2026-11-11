@@ -1020,59 +1020,6 @@ static void zelda_push_state(Ctx *c, uint64_t actor, int64_t now) {
     }
 }
 
-/* (Zelda: AchadoIA) o HUD do Tempo (gpu/vk/zelda_notas.h draw_hud), 2x por segundo do gancho do Link:
-   - as rupias: GameData Int PlayerStatus.CurrentRupee (MurMur3 0xa77921d7) pelo getter de Int f_80857070 (o mesmo desenho
-     do de Bool: a tabela de hash em GameDataMgr+0xE0, entradas de 0x28 com o valor em +0x1C);
-   - a hora: o que o mod "HUD of Time" (subsdk9) le: *(0x84e7eab0) -> +0x578 -> o metodo virtual +0x30 devolve os segundos
-     do dia (o mod faz % 86400) */
-static void zelda_hud_refresh(Ctx *c, int64_t now) {
-    void rx_option_set(int id, int value);
-    static int64_t next;
-    if (now < next) return;
-    next = now + 500000000LL;
-    int rupias = -1;
-    {
-        const uint64_t mgr = oot_singleton(c, OOT_GAMEDATA_SLOT);
-        A64Fn get = a64_lookup(0x80857070ULL);
-        if (mgr && get) {
-            const Ctx saved = *c;
-            const uint64_t out = (c->x[31] - 0x40) & ~0xfULL;
-            recomp_store64_sp(c, out, 0);
-            c->x[31] = out;
-            c->x[0] = mgr, c->x[1] = out, c->x[2] = 0xa77921d7u;
-            get(c);
-            const int found = (int)(c->x[0] & 1);
-            const int v = (int)recomp_load32(c, out);
-            *c = saved;
-            if (found && v >= 0 && v < 100000) rupias = v;
-        }
-    }
-    int hora = -1;
-    {
-        const uint64_t obj = recomp_load64(c, 0x84e7eab0ULL);
-        const uint64_t clock = obj ? recomp_load64(c, obj + 0x578) : 0;
-        const uint64_t vt = clock ? recomp_load64(c, clock) : 0;
-        const uint64_t fn = vt ? recomp_load64(c, vt + 0x30) : 0;
-        A64Fn get = fn ? a64_lookup(fn) : NULL;
-        if (get) {
-            const Ctx saved = *c;
-            c->x[0] = clock;
-            get(c);
-            const int raw = (int)(int32_t)c->x[0];
-            *c = saved;
-            hora = ((raw % 86400) + 86400) % 86400;
-        }
-        static int said;
-        if (!said && obj) {
-            said = 1;
-            hos_log("zelda: HUD do Tempo: relogio %s (fn %llx), rupias %d, hora %d", get ? "ok" : "nao achado",
-                    (unsigned long long)fn, rupias, hora);
-        }
-    }
-    rx_option_set(ZELDA_ID_RUPIAS, rupias);
-    rx_option_set(ZELDA_ID_HORA, hora);
-}
-
 static void oot_update_player_cheats(Ctx *c, uint64_t actor, uint64_t components) {
     int rx_option(int id, int otherwise);
     static uint64_t flying_actor, marked_actor, marked_controller;
@@ -1089,7 +1036,6 @@ static void oot_update_player_cheats(Ctx *c, uint64_t actor, uint64_t components
     oot_teleport_followup(c);
     oot_inventory_refresh(c, now);
     zelda_push_state(c, actor, now);
-    zelda_hud_refresh(c, now);
     {   /* (Zelda: AchadoIA) nn_hid.c: correr no B so em jogo */
         extern volatile int64_t hos_zelda_link_ns;
         __atomic_store_n(&hos_zelda_link_ns, now, __ATOMIC_RELAXED);
