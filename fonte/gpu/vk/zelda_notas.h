@@ -674,8 +674,8 @@ void generate() {
     }).detach();
 }
 
-// ---- o que embaralhar (como as opcoes do Ship of Harkinian): caixas de selecao, cada uma com a explicacao. As prontas vao
-// para o gerador (--embaralhar); as "em breve" dependem de trocar o item na hora da entrega, no runtime (ainda nao feito) ----
+// ---- o que embaralhar (como as opcoes do Ship of Harkinian): caixas de selecao, cada uma com a explicacao; vao para o
+// gerador (--embaralhar). Baus: a cena (Banc); NPCs e musicas: o item que o fluxo de evento entrega; lojas: as vitrines ----
 struct Opcao {
     const char* id;      // (o nome no gerador; vazio = ainda nao existe)
     const char* nome;
@@ -687,18 +687,18 @@ const Opcao opcoes[] = {
      "nenhuma porta travar o jogo."},
     {"mundo", "Baús do mundo",
      "Os 42 baús fora das masmorras: Floresta Kokiri, Campo de Hyrule, grutas, vilas, Fortaleza Gerudo, Colosso..."},
-    {"", "Lojas e vendedores (em breve)",
-     "Os itens à venda nas lojas, nos Deku vendedores e nos mercadores. Ainda não disponível: o jogo entrega esses itens por "
-     "um evento, e trocar o item precisa ser feito na hora da entrega, dentro do jogo."},
-    {"", "Itens de NPCs e quests (em breve)",
-     "O que os personagens entregam: o alvo da Floresta Perdida, o Goron da bolsa de bombas, as Grandes Fadas, minigames, "
-     "Biggoron... Ainda não disponível (a mesma troca na hora da entrega)."},
-    {"", "Músicas da ocarina (em breve)",
-     "As músicas e os lugares onde se aprendem: quem ensinava a Canção de Saria pode ensinar outra. Ainda não disponível "
-     "(a mesma troca na hora da entrega)."},
+    {"lojas", "Lojas e vendedores",
+     "O que cada loja vende muda de lugar (Kokiri, Mercado, Kakariko, Goron, Zora), com o preço junto. O Escudo Deku "
+     "sempre fica numa loja de criança. As máscaras (empréstimo) ficam como estão."},
+    {"npcs", "Itens de NPCs e quests",
+     "As 6 Grandes Fadas (magias, magia, defesa), Darunia (Bracelete Goron), o Cartão Gerudo e as peças de coração do "
+     "homem do telhado, do Skull Kid, dos sapos e do Dampé. Os itens deles podem cair em baús, e vice-versa."},
+    {"musicas", "Músicas da ocarina",
+     "As 12 músicas trocam de professor: a Impa pode ensinar o Bolero, o Sheik da cratera a Canção de Saria... A lição "
+     "toca a música de antes, mas você ganha a nova. As músicas ficam só nos lugares de música."},
 };
 constexpr int kModes = 3, kOpcoes = (int)(sizeof opcoes / sizeof opcoes[0]), kRows = kModes + kOpcoes;
-bool marcada[kOpcoes] = {true, true, false, false, false};
+bool marcada[kOpcoes] = {true, true, true, true, true};
 std::string embaralhar_seed;   // (o que a seed atual embaralhou: randomizer\embaralhar.txt)
 
 bool na_lista(const std::string& lista, const char* id) {
@@ -789,7 +789,7 @@ void draw_mode(ui::Ctx& c) {
     const int st = gen_state.load();
     std::string msg;
     ImU32 col = ui::kSoft;
-    if (st == 1) msg = "Gerando a seed (" + nomes_de(lista_marcadas()) + ")... uns 10 segundos.";
+    if (st == 1) msg = "Gerando a seed (" + nomes_de(lista_marcadas()) + ")... uns 20 a 40 segundos.";
     else if (st == 2) msg = "Seed pronta. Reiniciando o jogo...";
     else if (st == 3) {
         std::lock_guard lk(gen_mu);
@@ -798,7 +798,7 @@ void draw_mode(ui::Ctx& c) {
     else if (mode_sel == 0) msg = "A campanha de sempre (saves em user\\save). Não muda nada nos arquivos do jogo.";
     else if (mode_sel == 1) {
         const std::string l = lista_marcadas();
-        msg = l.empty() ? "Marque abaixo pelo menos uma opção pronta." :
+        msg = l.empty() ? "Marque abaixo pelo menos uma opção." :
               "Gera uma seed nova com: " + nomes_de(l) + ". Só vale para um NOVO JOGO, com saves separados: a sua campanha "
               "normal fica intocada." + std::string(rando_save ? " O save randomizer atual é guardado numa pasta com a data." : "");
     } else if (mode_sel == 2) msg = "Volta para a seed atual e o save randomizer dela.";
@@ -856,7 +856,7 @@ void tick_mode(const bool* press, bool mouse, const MkwVkPointer& ptr, int mx, i
         if (rando) open_now = false, page = 0;   // (ja e esta seed)
         else if (write_mode("randomizer")) restart_game();
     } else if (lista_marcadas().empty()) {
-        aviso = "Marque pelo menos uma opção pronta (baús das masmorras ou do mundo).";
+        aviso = "Marque pelo menos uma opção.";
     } else {
         generate();
     }
