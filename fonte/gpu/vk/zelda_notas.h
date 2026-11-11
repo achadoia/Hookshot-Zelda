@@ -688,11 +688,12 @@ const Opcao opcoes[] = {
     {"mundo", "Baús do mundo",
      "Os 42 baús fora das masmorras: Floresta Kokiri, Campo de Hyrule, grutas, vilas, Fortaleza Gerudo, Colosso..."},
     {"lojas", "Lojas e vendedores",
-     "O que cada loja vende muda de lugar (Kokiri, Mercado, Kakariko, Goron, Zora), com o preço junto. O Escudo Deku "
-     "sempre fica numa loja de criança. As máscaras (empréstimo) ficam como estão."},
+     "O que cada loja vende muda de lugar (Kokiri, Mercado, Kakariko, Goron, Zora), com o preço junto, e os Deku "
+     "vendedores trocam as mercadorias entre si. O Escudo Deku sempre fica numa loja de criança. As máscaras ficam."},
     {"npcs", "Itens de NPCs e quests",
-     "As 6 Grandes Fadas (magias, magia, defesa), Darunia (Bracelete Goron), o Cartão Gerudo e as peças de coração do "
-     "homem do telhado, do Skull Kid, dos sapos e do Dampé. Os itens deles podem cair em baús, e vice-versa."},
+     "Tudo o que os personagens entregam: Grandes Fadas, Saria (ocarina), Zelda (carta, Ocarina do Tempo, Flechas de "
+     "Luz), Darunia, Rei Zora, Anju, minigames (alvo, boliche, pesca, mergulho, arco), trocas do Biggoron... Os itens "
+     "deles podem cair em baús, e vice-versa."},
     {"musicas", "Músicas da ocarina",
      "As 12 músicas trocam de professor: a Impa pode ensinar o Bolero, o Sheik da cratera a Canção de Saria... A lição "
      "toca a música de antes, mas você ganha a nova. As músicas ficam só nos lugares de música."},
