@@ -688,6 +688,12 @@ const char* tx_zelda_pad(int v) { return v <= 0 ? "Nenhum (só F7)" : pad_name(v
 // (Zelda: AchadoIA) o tracker de itens na esquerda da tela (zelda_notas.h draw_tracker)
 int zelda_tracker = 0, zelda_tracker_alpha = 80, zelda_tracker_size = 100;
 const char* tx_ligado(int v) { return v ? "Ligado" : "Desligado"; }
+// (Zelda: AchadoIA) a combinacao do controle que abre e fecha este menu, como o F1 (menu_tick): quem joga longe do teclado
+int zelda_menu_pad = 1;
+const char* tx_zelda_menu_pad(int v) {
+    static const char* const n[] = {"Nenhuma (Home, Select + Start)", "L3 + R3", "L + R + Select", "ZL + ZR + Select"};
+    return n[std::clamp(v, 0, 3)];
+}
 
 Row rows[] = {
     // Graphics (Reflex, Anti-Lag 2, the Upscaler and the DLSS model only where they run here; HDR's paper white and peak
@@ -840,6 +846,10 @@ Row rows[] = {
      "O botão do controle que abre o mapa do Zelda (o mesmo que F7): os baús, skulltulas e corações de cada área, o que já "
      "foi pego e onde o Link está. Na tela de título, ele abre o modo de jogo (Normal ou Randomizer). Escolha um que você "
      "não use no jogo, como L3 ou R3.",
+     nullptr, false, true},
+    {TAB_CONTROLS, "Menu do Hookshot: controle", &zelda_menu_pad, 0, 3, 1, tx_zelda_menu_pad,
+     "A combinação do controle que abre e fecha este menu, como o F1 no teclado: aperte os botões juntos. Home e Select + "
+     "Start continuam valendo.",
      nullptr, false, true},
     {TAB_CONTROLS, "Menu shortcut", &opts.menu_shortcut, 0, 2, 1, tx_menu_shortcut,
      "Which keys open and close this menu. F1 always does; F1 only leaves Insert free for an overlay. With Esc, Esc opens it "
@@ -1163,6 +1173,7 @@ const char* ini_key(const Row& r) {
     if (r.value == &opts.mesh_mode) return "mesh_shaders";   // (gpu/vk/vk_main.cpp reads it as the device is made)
     if (r.value == &zelda_pad) return "zelda_mapa_pad";   // (Zelda: AchadoIA; o nome da linha tem acento)
     if (r.value == &zelda_tracker) return "zelda_tracker";
+    if (r.value == &zelda_menu_pad) return "zelda_menu_pad";
     if (r.value == &zelda_tracker_alpha) return "zelda_tracker_opacidade";
     if (r.value == &zelda_tracker_size) return "zelda_tracker_tamanho";
     static char k[32];
@@ -2880,6 +2891,16 @@ void menu_tick() {
         menu_keys::confirm_back(host->binding(HOS_BIND_PAD, HOS_SW_A, 0), host->binding(HOS_BIND_PAD, HOS_SW_B, 0), &pad_confirm,
                                 &pad_back);
     if (pad(HOS_PAD_GUIDE) || chord_now) press[0] = true;
+    {   // (Zelda: AchadoIA) a combinacao escolhida em Controles > Menu do Hookshot: controle, como o F1
+        static const uint32_t combos[4] = {0, 1u << HOS_PAD_LSTICK | 1u << HOS_PAD_RSTICK,
+                                           1u << HOS_PAD_LSHOULDER | 1u << HOS_PAD_RSHOULDER | 1u << HOS_PAD_BACK,
+                                           1u << HOS_PAD_LTRIGGER | 1u << HOS_PAD_RTRIGGER | 1u << HOS_PAD_BACK};
+        static bool combo_was = false;
+        const uint32_t c = combos[std::clamp(zelda_menu_pad, 0, 3)];
+        const bool now = c && (raw & c) == c;
+        if (now && !combo_was && listening != 1) press[0] = true;
+        combo_was = now;
+    }
     {   // holding an arrow or the D-pad repeats it: after 0.35 s, 12 a second, then 30 a second after 1.5 s held
         static int64_t held_since[5], next_repeat[5];
         const int pads[5] = {0, HOS_PAD_UP, HOS_PAD_DOWN, HOS_PAD_LEFT, HOS_PAD_RIGHT};
