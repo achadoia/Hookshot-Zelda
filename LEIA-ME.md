@@ -26,6 +26,7 @@ guarda as mudanças nesses arquivos e recompila a pasta do jogo com elas.
 | Randomizer | Embaralha os 98 baús de item (E:\OoT-Notas\randomizer). Só **novo jogo**, saves separados. |
 | Correr no B | Segurando B com o analógico inclinado (0,15 s), o jogo recebe A segurado: rola e corre como segurando A. O toque de B continua só B (cancelar, descer da escada). Só em jogo; `correr_b=0` em `zelda\config.ini` desliga. |
 | Bracelete (randomizer) | Puxar a bomba é "levantar" (como a flor-bomba) e o Remake só deixa com o Bracelete Goron. Com a bolsa de bombas de um baú e sem o bracelete, o bracelete entra junto (`hos_main.c`, `oot_inventory_refresh`). |
+| Tracker de itens | Menu Insert > Gameplay: "Tracker de itens" (liga), "Tracker: opacidade", "Tracker: tamanho". Uma coluna fina na esquerda, só em jogo, com os ícones do Remake (`ferramentas\gerar_tracker.py` -> `zelda\notas\tracker`): itens, equipamento, upgrades, pedras, medalhões, músicas; aceso = tem, apagado = falta, munição com a quantidade. |
 | Cutscenes (randomizer) | A seed tira a trava `SkipSetting/DisableSkip` da abertura (Dm_Kokiri_0000) e dos créditos: com isso todas as cutscenes aceitam o pular do jogo. (As outras nunca tiveram trava; o fundo do título fica como está.) |
 
 ### Mapa (página 6)

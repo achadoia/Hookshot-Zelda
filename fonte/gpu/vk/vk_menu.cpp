@@ -685,6 +685,9 @@ MENU_HINTS(hn_prompts, 0,
 int zelda_pad = 0;
 const char* pad_name(int p);
 const char* tx_zelda_pad(int v) { return v <= 0 ? "Nenhum (só F7)" : pad_name(v - 1); }
+// (Zelda: AchadoIA) o tracker de itens na esquerda da tela (zelda_notas.h draw_tracker)
+int zelda_tracker = 0, zelda_tracker_alpha = 80, zelda_tracker_size = 100;
+const char* tx_ligado(int v) { return v ? "Ligado" : "Desligado"; }
 
 Row rows[] = {
     // Graphics (Reflex, Anti-Lag 2, the Upscaler and the DLSS model only where they run here; HDR's paper white and peak
@@ -760,6 +763,14 @@ Row rows[] = {
     // Gameplay
     {TAB_GAMEPLAY, "FPS counter", &opts.show_fps, 0, 1, 1, tx_onoff, "Frames per second in the top right corner.", hn_fps,
      false, true},
+    {TAB_GAMEPLAY, "Tracker de itens", &zelda_tracker, 0, 1, 1, tx_ligado,
+     "Uma coluna fina na esquerda da tela, durante o jogo, com os ícones do próprio jogo: itens, equipamentos, upgrades, "
+     "pedras, medalhões e músicas. O que você tem fica aceso, o que falta fica apagado, e as munições mostram a quantidade.",
+     nullptr, false, true},
+    {TAB_GAMEPLAY, "Tracker: opacidade", &zelda_tracker_alpha, 10, 100, 10, tx_percent,
+     "O quanto o tracker de itens aparece sobre o jogo: 100% opaco, menos fica mais transparente.", nullptr, false, true},
+    {TAB_GAMEPLAY, "Tracker: tamanho", &zelda_tracker_size, 60, 160, 10, tx_percent,
+     "O tamanho do tracker de itens (100% ocupa mais ou menos um sexto da largura da tela em 16:9).", nullptr, false, true},
     {TAB_GAMEPLAY, "Menu size", &opts.menu_size, 1, 3, 1, tx_menu_size,
      "How large this menu, the FPS counter and the start-up screen are drawn.", hn_menu_size, false, true},
     {TAB_GAMEPLAY, "Game speed", &opts.realtime, 0, 1, 1, tx_speed, "How the game keeps time when it runs below 60 fps.",
@@ -1151,6 +1162,9 @@ const char* ini_key(const Row& r) {
     if (r.value == &opts.handheld) return "handheld_profile";   // (the Profile row; host/nn_applet.c reads it at the start)
     if (r.value == &opts.mesh_mode) return "mesh_shaders";   // (gpu/vk/vk_main.cpp reads it as the device is made)
     if (r.value == &zelda_pad) return "zelda_mapa_pad";   // (Zelda: AchadoIA; o nome da linha tem acento)
+    if (r.value == &zelda_tracker) return "zelda_tracker";
+    if (r.value == &zelda_tracker_alpha) return "zelda_tracker_opacidade";
+    if (r.value == &zelda_tracker_size) return "zelda_tracker_tamanho";
     static char k[32];
     size_t n = 0;
     for (const char* p = r.name; *p && n + 1 < sizeof k; p++) k[n++] = *p == ' ' ? '_' : (char)tolower(*p);
@@ -2710,7 +2724,10 @@ void menu_option_set(int id, int value) {
     case ZELDA_ID_BANC: zelda::live_banc.store(value, std::memory_order_relaxed); return;
     case ZELDA_ID_POS_X: zelda::live_x.store(value, std::memory_order_relaxed); return;
     case ZELDA_ID_POS_Z: zelda::live_z.store(value, std::memory_order_relaxed); return;
-    case ZELDA_ID_LINK: zelda::live_link.store(value, std::memory_order_relaxed); return;
+    case ZELDA_ID_LINK:
+        zelda::live_link.store(value, std::memory_order_relaxed);
+        if (value) zelda::live_link_ns.store(prof_now(), std::memory_order_relaxed);   // (o tracker: so com o Link em jogo)
+        return;
     case ZELDA_ID_MENU: zelda::live_menu.store(value, std::memory_order_relaxed); return;
     default: break;
     }
@@ -3264,7 +3281,8 @@ void menu_record(VkCommandBuffer cmd, uint32_t index, uint32_t w, uint32_t h) {
     const bool fps = opts.show_fps && !start;   // (no game frames yet: not "0 FPS" over the start-up screen)
     const bool open = open_now.load(std::memory_order_relaxed);
     const bool badge = !start && !open && zelda::badge_wanted();   // (Zelda: AchadoIA) o modo de jogo, na tela de titulo
-    if (!start && !fps && !open && !badge) {   // (nothing shows: no ImGui frame, no render pass)
+    const bool tracker = !start && !open && zelda_tracker && zelda::tracker_wanted(prof_now());   // (Zelda: AchadoIA)
+    if (!start && !fps && !open && !badge && !tracker) {   // (nothing shows: no ImGui frame, no render pass)
         // (but a new window size or Menu size since the last bake: one frame with nothing drawn that bakes the menu's glyphs
         // and measures its page for the new size, so the next open has no hitch whatever was resized while nothing showed)
         if (prebake_needed(w, h) && ui::begin(w, h)) {
@@ -3288,6 +3306,7 @@ void menu_record(VkCommandBuffer cmd, uint32_t index, uint32_t w, uint32_t h) {
     prebake(c);   // (the menu's glyphs at this size, before it opens: no hitch then)
     if (start) draw_startup(c);   // (under the menu)
     if (badge) zelda::draw_badge(c, zelda_pad > 0 ? pad_name(zelda_pad - 1) : nullptr);
+    if (tracker) zelda::draw_tracker(c, zelda_tracker_alpha, zelda_tracker_size);
     if (open) draw_menu(c);
     if (fps) draw_fps(c, open);
     ::mkwvk::rec::boundary(::mkwvk::rec::B_DIRECT);   // (Dear ImGui records into cmd directly, its backend through its own pointers: what this thread recorded through vk_work.h reaches cmd first)
@@ -3298,10 +3317,12 @@ void menu_record_image(VkCommandBuffer cmd, VkImage image, VkImageView view, uin
     const bool open = open_now.load(std::memory_order_relaxed);
     const bool fps = opts.show_fps && !startup_on.load(std::memory_order_acquire);
     const bool badge = !open && !startup_on.load(std::memory_order_acquire) && zelda::badge_wanted();   // (Zelda: AchadoIA)
-    if (!open && !fps && !badge) return;
+    const bool tracker = !open && !startup_on.load(std::memory_order_acquire) && zelda_tracker && zelda::tracker_wanted(prof_now());
+    if (!open && !fps && !badge && !tracker) return;
     if (!ui::begin(w, h)) return;
     ui::Ctx c = ui_ctx(w, h);
     if (badge) zelda::draw_badge(c, zelda_pad > 0 ? pad_name(zelda_pad - 1) : nullptr);
+    if (tracker) zelda::draw_tracker(c, zelda_tracker_alpha, zelda_tracker_size);
     if (open) draw_menu(c);
     if (fps) draw_fps(c, open);
     ::mkwvk::rec::boundary(::mkwvk::rec::B_DIRECT);   // (Dear ImGui records into cmd directly, its backend through its own pointers: what this thread recorded through vk_work.h reaches cmd first)

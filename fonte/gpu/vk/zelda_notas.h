@@ -881,4 +881,115 @@ void draw_badge(ui::Ctx& c, const char* pad_label) {
     ui::text(c, c.f.body, 14.5f * s, ImVec2(a.x + 18 * s, a.y + 33 * s), ui::kSoft, l2);
 }
 
+// ---- o tracker de itens: uma coluna fina na esquerda da tela, ao vivo, com os icones do proprio Remake (zelda\notas\tracker,
+// ferramentas\gerar_tracker.py). O que se tem aceso, o que falta apagado; municoes com a quantidade. As quantidades sao as da
+// pagina de inventario do menu (item_counts: host/hos_main.c oot_inventory_refresh, 2x por segundo) ----
+#define ZT_POUCH(label, name, kind) name,
+#define ZT_NO_SECTION(title)
+constexpr const char* trk_pouch[] = {OOT_CHEAT_ITEMS(ZT_NO_SECTION, ZT_POUCH)};
+#undef ZT_POUCH
+#undef ZT_NO_SECTION
+std::atomic<int64_t> live_link_ns{0};   // (a ultima vez que o lado do jogo disse "o Link esta em jogo": ZELDA_ID_LINK)
+
+int trk_count(const char* pouch) {   // (-1: o jogo ainda nao mandou)
+    for (int i = 0; i < (int)(sizeof trk_pouch / sizeof trk_pouch[0]); i++)
+        if (!strcmp(trk_pouch[i], pouch)) return item_counts[i].load(std::memory_order_relaxed);
+    return -1;
+}
+struct TrkSlot {
+    const char* niveis[3];   // (do primeiro ao ultimo: aparece o maior que se tem, senao o primeiro apagado)
+    const char* icone;       // (um icone fixo no lugar do nivel: a bomba para as bolsas), ou nullptr
+    const char* conta;       // (a municao mostrada no canto), ou nullptr
+};
+const TrkSlot trk_slots[] = {
+    // itens
+    {{"Weapon_Range_SlingShot"}, nullptr, "Item_DekuSeed"}, {{"Weapon_Range_Bow"}, nullptr, "Item_Arrow_Normal"},
+    {{"Item_BombBag_Small", "Item_BombBag_Medium", "Item_BombBag_Large"}, "Item_Bomb", "Item_Bomb"},
+    {{"Item_Bombchu"}, nullptr, "Item_Bombchu"}, {{"Item_Boomerang"}},
+    {{"Item_Hookshot", "Item_Longshot"}}, {{"Item_Hammer"}}, {{"Item_GlassTruth"}},
+    {{"Item_Ocarina_Fairy", "Item_Ocarina_Time"}}, {{"Item_Bottle"}, nullptr, "Item_Bottle"},
+    {{"Item_DekuStick"}, nullptr, "Item_DekuStick"}, {{"Item_DekuNut"}, nullptr, "Item_DekuNut"},
+    {{"Item_MagicBean"}, nullptr, "Item_MagicBean"}, {{"Item_DinFire"}}, {{"Item_FaroreWind"}},
+    {{"Item_NayruLove"}}, {{"Item_Arrow_Fire"}}, {{"Item_Arrow_Ice"}}, {{"Item_Arrow_Light"}}, {{nullptr}},
+    // equipamento
+    {{"Weapon_Sword_Kokiri"}}, {{"Weapon_Sword_Master"}}, {{"Weapon_Sword_Giant", "Weapon_Sword_Biggoron"}},
+    {{"Weapon_Shield_Deku"}}, {{"Weapon_Shield_Hylian"}}, {{"Weapon_Shield_Mirror"}}, {{"Armor_Adult_Goron"}},
+    {{"Armor_Adult_Zora"}}, {{"Armor_Adult_HeavyBoot"}}, {{"Armor_Adult_HoverBoot"}},
+    // upgrades
+    {{"Item_Gauntlet_Goron", "Armor_Adult_Gauntlet_Silver", "Armor_Adult_Gauntlet_Gold"}},
+    {{"Item_Scale_Silver", "Item_Scale_Gold"}}, {{"Item_Wallet_Medium", "Item_Wallet_Large"}},
+    {{"Item_FairyBless_MP", "Item_FairyBless_MPDouble"}}, {{"Item_FairyBless_DefenseDouble"}},
+    // pedras, medalhoes, o resto da colecao
+    {{"Item_Stone_Forest"}}, {{"Item_Stone_Fire"}}, {{"Item_Stone_Water"}}, {{"Item_AgonyStone"}}, {{"Item_Token_Gerudo"}},
+    {{"Item_Medal_Forest"}}, {{"Item_Medal_Fire"}}, {{"Item_Medal_Water"}}, {{"Item_Medal_Shadow"}}, {{"Item_Medal_Spirit"}},
+    {{"Item_Medal_Light"}}, {{"Item_Token_Gold"}, nullptr, "Item_Token_Gold"}, {{nullptr}}, {{nullptr}}, {{nullptr}},
+    // musicas
+    {{"Item_Melody_ZeldaLullaby"}}, {{"Item_Melody_EponaSong"}}, {{"Item_Melody_SariaSong"}}, {{"Item_Melody_SunSong"}},
+    {{"Item_Melody_TimeSong"}}, {{"Item_Melody_StormSong"}}, {{"Item_Melody_ForestMinuet"}}, {{"Item_Melody_FireBolero"}},
+    {{"Item_Melody_WaterSerenade"}}, {{"Item_Melody_ShadowNocturne"}}, {{"Item_Melody_SpiritRequiem"}},
+    {{"Item_Melody_LightPrelude"}},
+};
+// (onde cada grupo comeca: uma linha fina entre eles)
+const int trk_grupos[] = {0, 20, 30, 35, 50, 62};
+
+bool tracker_wanted(int64_t now) {
+    return now - live_link_ns.load(std::memory_order_relaxed) < 1500000000LL && trk_count("Item_DekuSeed") >= 0;
+}
+void draw_tracker(ui::Ctx& c, int opacity_pct, int size_pct) {
+    load();
+    const float s = c.s * size_pct / 100.0f, op = std::clamp(opacity_pct, 10, 100) / 100.0f;
+    const int cols = 5;
+    const float cell = 46 * s, gap = 4 * s, pad = 8 * s, sep = 7 * s;
+    const int n = (int)(sizeof trk_slots / sizeof trk_slots[0]);
+    int rows = 0;
+    for (int g = 0; g + 1 < (int)(sizeof trk_grupos / sizeof trk_grupos[0]); g++) rows += (trk_grupos[g + 1] - trk_grupos[g] + cols - 1) / cols;
+    const float W = pad * 2 + cols * cell + (cols - 1) * gap;
+    const float H = pad * 2 + rows * cell + (rows - 1) * gap + 4 * sep;
+    const ImVec2 a(c.safe + 6 * c.s, std::max(c.safe + 60 * c.s, c.h * 0.2f)), b = a + ImVec2(W, H);
+    auto mul = [&](ImU32 col, float k) { return (col & 0x00ffffffu) | ((ImU32)(((col >> 24) & 0xff) * k) << 24); };
+    c.d->AddRectFilled(a, b, mul(ui::rgba(20, 15, 9, 200), op), 6 * s);
+    c.d->AddRect(a, b, mul(ui::rgba(122, 98, 64, 200), op), 6 * s, 0, 1.2f * s);
+    float y = a.y + pad;
+    for (int g = 0; g + 1 < (int)(sizeof trk_grupos / sizeof trk_grupos[0]); g++) {
+        if (g) {
+            c.d->AddLine(ImVec2(a.x + pad, y + sep * 0.5f - gap * 0.5f), ImVec2(b.x - pad, y + sep * 0.5f - gap * 0.5f),
+                         mul(ui::rgba(122, 98, 64, 160), op), 1 * s);
+            y += sep;
+        }
+        for (int i = trk_grupos[g], k = 0; i < trk_grupos[g + 1] && i < n; i++, k++) {
+            const TrkSlot& sl = trk_slots[i];
+            if (k && k % cols == 0) y += cell + gap;
+            if (!sl.niveis[0]) continue;
+            int nivel = -1;
+            for (int v = 0; v < 3 && sl.niveis[v]; v++)
+                if (trk_count(sl.niveis[v]) > 0) nivel = v;
+            const char* nome = sl.icone ? sl.icone : sl.niveis[std::max(nivel, 0)];
+            const ImVec2 p(a.x + pad + (k % cols) * (cell + gap), y), q = p + ImVec2(cell, cell);
+            if (Tex* t = tex(std::string("tracker\\") + nome)) {
+                const ImU32 tint = nivel >= 0 ? IM_COL32(255, 255, 255, (int)(255 * op)) : IM_COL32(90, 90, 90, (int)(110 * op));
+                c.d->AddImage(t->t->GetTexRef(), p, q, ImVec2(0, 0), ImVec2(1, 1), tint);
+            }
+            if (nivel >= 1 && sl.niveis[1] && !sl.icone) {   // (o nivel de um progressivo: 2, 3 no canto de cima)
+                char nv[4];
+                snprintf(nv, sizeof nv, "%d", nivel + 1);
+                ui::text(c, c.f.strong, 13 * s, ImVec2(q.x - 10 * s, p.y - 1 * s), mul(ui::kGoldHi, op), nv);
+            }
+            if (sl.conta && nivel >= 0) {
+                const int v = trk_count(sl.conta);
+                if (v > 0) {
+                    char num[8];
+                    snprintf(num, sizeof num, "%d", v);
+                    const ImVec2 ts = ui::size_of(c.f.strong, 15 * s, num);
+                    const ImVec2 tp(q.x - ts.x - 1 * s, q.y - ts.y + 2 * s);
+                    for (int dx = -1; dx <= 1; dx++)
+                        for (int dy = -1; dy <= 1; dy++)
+                            if (dx || dy) ui::text(c, c.f.strong, 15 * s, tp + ImVec2(dx * 1.2f * s, dy * 1.2f * s), mul(ui::rgba(0, 0, 0, 230), op), num);
+                    ui::text(c, c.f.strong, 15 * s, tp, mul(ui::rgba(120, 255, 120), op), num);
+                }
+            }
+        }
+        y += cell + gap;
+    }
+}
+
 }   // namespace zelda
