@@ -22,6 +22,8 @@
 #define ZELDA_ID_POS_Z 5002
 #define ZELDA_ID_LINK 5003   /* 1: o Link apareceu nesta execucao (saiu da tela de titulo) */
 #define ZELDA_ID_MENU 5004   /* 1: uma tela de menu do jogo esta na frente (host/oot_menu.c) */
+#define ZELDA_ID_RUPIAS 5005 /* PlayerStatus.CurrentRupee (o HUD do Tempo); -1 desconhecido */
+#define ZELDA_ID_HORA 5006   /* a hora do dia do jogo em segundos desde a meia-noite (0..86399); -1 desconhecida */
 
 static inline unsigned zelda_fnv(const char *s) {
     unsigned h = 2166136261u;

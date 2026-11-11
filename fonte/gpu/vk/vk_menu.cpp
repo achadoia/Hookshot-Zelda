@@ -71,7 +71,8 @@ enum MenuTab {
     TAB_GAMEPLAY = 2,
     TAB_CONTROLS = 3,
     TAB_DEBUG = 4,   // (the OoT debug tools of #785, a tab of their own)
-    TAB_COUNT = 5,
+    TAB_MODS = 5,    // (Zelda: AchadoIA) o HUD do Tempo e os mods de <pasta>\mods, cada um liga/desliga
+    TAB_COUNT = 6,
     TAB_MOTION = TAB_COUNT,   // (hookshot: not a tab of the strip, the Motion page that the Controls tab's Motion row
                               // opens: one past the strip's tabs, so a tab added before TAB_COUNT moves it along)
     TAB_PAGE = TAB_MOTION + 1   // (hookshot: the Controls page's rows, above its grid; no tab shows them)
@@ -690,6 +691,24 @@ int zelda_tracker = 0, zelda_tracker_alpha = 80, zelda_tracker_size = 100;
 const char* tx_ligado(int v) { return v ? "Ligado" : "Desligado"; }
 // (Zelda: AchadoIA) a combinacao do controle que abre e fecha este menu, como o F1 (menu_tick): quem joga longe do teclado
 int zelda_menu_pad = 1;
+// (Zelda: AchadoIA) a aba Mods: o HUD do Tempo (zelda_notas.h draw_hud: a hora do jogo e as rupias, sempre na tela em jogo)
+// e os mods de <pasta>\mods (uma linha por pasta com romfs; desligar = o nome em zelda\mods_desligados.txt, que host/mods.c
+// pula no inicio: vale ao reiniciar). zelda_mods_sig: uma linha escondida que "reinicia" (as linhas que reiniciam tem
+// so 16 lugares, menu_restart.h): muda quando qualquer mod muda e o menu pergunta se reinicia ao fechar
+int zelda_hud = 1, zelda_hud_24h = 1, zelda_hud_size = 100, zelda_hud_canto = 0;
+constexpr int kZeldaMods = 24;
+char zelda_mod_nome[kZeldaMods][96];   // (a pasta; "" = lugar vazio, a linha nao aparece)
+int zelda_mod_on[kZeldaMods] = {};
+int zelda_mods_sig = 0;
+const char* tx_hud_relogio(int v) { return v ? "24 horas" : "12 horas (AM/PM)"; }
+const char* tx_hud_canto(int v) {
+    static const char* const n[] = {"Embaixo, à direita", "Embaixo, à esquerda", "Em cima, à direita", "Em cima, à esquerda"};
+    return n[std::clamp(v, 0, 3)];
+}
+bool is_zelda_mod_row(const int* v) { return v >= zelda_mod_on && v < zelda_mod_on + kZeldaMods; }
+#define ZELDA_MOD_ROW(i) {TAB_MODS, zelda_mod_nome[i], &zelda_mod_on[i], 0, 1, 1, tx_ligado, \
+     "Um mod da pasta mods do jogo (arquivos que trocam os do jogo: texturas, modelos...). Ligar ou desligar vale depois de " \
+     "reiniciar: ao fechar o menu ele pergunta.", nullptr, false, true}
 const char* tx_zelda_menu_pad(int v) {
     static const char* const n[] = {"Nenhuma (Home, Select + Start)", "L3 + R3", "L + R + Select", "ZL + ZR + Select"};
     return n[std::clamp(v, 0, 3)];
@@ -891,6 +910,19 @@ Row rows[] = {
     {TAB_DEBUG, "Sampler cache", &opts.sampler_cache, 0, 1, 1, tx_onoff,
      "What a sampler holds is kept beside it on the replay thread, so resolving a sampler that was not registered anew takes no "
      "lock. Helps while the game streams textures. Applies after restart.", nullptr, true},
+    // (Zelda: AchadoIA) Mods
+    {TAB_MODS, "HUD do Tempo", &zelda_hud, 0, 1, 1, tx_ligado,
+     "Durante o jogo: a hora do dia de Hyrule com o sol ou a lua, e as rupias que você tem, sempre na tela.", nullptr, false, true},
+    {TAB_MODS, "HUD: relógio", &zelda_hud_24h, 0, 1, 1, tx_hud_relogio,
+     "Como a hora aparece no HUD do Tempo: 24 horas (14:30) ou 12 horas com AM/PM (2:30 PM).", nullptr, false, true},
+    {TAB_MODS, "HUD: tamanho", &zelda_hud_size, 60, 200, 10, tx_percent, "O tamanho do HUD do Tempo.", nullptr, false, true},
+    {TAB_MODS, "HUD: canto", &zelda_hud_canto, 0, 3, 1, tx_hud_canto, "Em que canto da tela fica o HUD do Tempo.", nullptr,
+     false, true},
+    {TAB_MODS, "Mods", &zelda_mods_sig, INT_MIN, INT_MAX, 1, nullptr, nullptr, nullptr, true, true},   // (escondida: row_shown)
+    ZELDA_MOD_ROW(0), ZELDA_MOD_ROW(1), ZELDA_MOD_ROW(2), ZELDA_MOD_ROW(3), ZELDA_MOD_ROW(4), ZELDA_MOD_ROW(5),
+    ZELDA_MOD_ROW(6), ZELDA_MOD_ROW(7), ZELDA_MOD_ROW(8), ZELDA_MOD_ROW(9), ZELDA_MOD_ROW(10), ZELDA_MOD_ROW(11),
+    ZELDA_MOD_ROW(12), ZELDA_MOD_ROW(13), ZELDA_MOD_ROW(14), ZELDA_MOD_ROW(15), ZELDA_MOD_ROW(16), ZELDA_MOD_ROW(17),
+    ZELDA_MOD_ROW(18), ZELDA_MOD_ROW(19), ZELDA_MOD_ROW(20), ZELDA_MOD_ROW(21), ZELDA_MOD_ROW(22), ZELDA_MOD_ROW(23),
     // (Restart and Quit stay the table's last two: kRestartRow and kQuitRow count back from its end)
     {TAB_GAMEPLAY, "Restart", nullptr, 0, 0, 0, nullptr,
      "Starts the game again. Save your progress first. Press Enter or A twice to restart. Esc or B "
@@ -1073,10 +1105,12 @@ namespace mr = menu_restart;
 mr::State restart_state;
 int restart_slot[kRows];             // (a row's slot in restart_state, -1 none)
 const char* restart_names[mr::kMax];
+void zelda_mods_scan();
 void restart_init() {
     static bool done = false;
     if (done) return;
     done = true;
+    zelda_mods_scan();   // (Zelda: AchadoIA) os mods da pasta e quais estao desligados: o que esta execucao carregou
     for (int i = 0; i < kRows; i++) {
         restart_slot[i] = rows[i].restart && rows[i].value ? restart_state.add(*rows[i].value) : -1;
         if (restart_slot[i] >= 0) restart_names[restart_slot[i]] = rows[i].name;
@@ -1116,6 +1150,8 @@ int ask_sel = 0;   // (the restart question's choice: 0 Later, 1 Restart now)
 /// and menu_tick brings back one past the end
 bool row_shown(int i) {
     const int* v = rows[i].value;
+    if (v == &zelda_mods_sig) return false;   // (Zelda: AchadoIA) a linha que so marca "os mods mudaram"
+    if (is_zelda_mod_row(v)) return zelda_mod_nome[v - zelda_mod_on][0] != 0;
     return (rows[i].cheat < 0 || cheats_on()) && (v != &opts.reflex || reflex_available()) &&
            (v != &opts.antilag || antilag_available()) &&
            (v != &opts.dlss || ur::upscaler_shown(upscalers_available())) &&
@@ -1176,6 +1212,10 @@ const char* ini_key(const Row& r) {
     if (r.value == &zelda_menu_pad) return "zelda_menu_pad";
     if (r.value == &zelda_tracker_alpha) return "zelda_tracker_opacidade";
     if (r.value == &zelda_tracker_size) return "zelda_tracker_tamanho";
+    if (r.value == &zelda_hud) return "zelda_hud";
+    if (r.value == &zelda_hud_24h) return "zelda_hud_24h";
+    if (r.value == &zelda_hud_size) return "zelda_hud_tamanho";
+    if (r.value == &zelda_hud_canto) return "zelda_hud_canto";
     static char k[32];
     size_t n = 0;
     for (const char* p = r.name; *p && n + 1 < sizeof k; p++) k[n++] = *p == ' ' ? '_' : (char)tolower(*p);
@@ -1267,7 +1307,79 @@ void mic_chosen() {
     mic_row_ends();
     mic_tell_host();
 }
+// (Zelda: AchadoIA) os mods da aba Mods: as pastas de <pasta>\mods com romfs (as que comecam com '-' ou '_' o host ja
+// deixa de fora sempre); desligados = zelda\mods_desligados.txt, uma pasta por linha (host/mods.c le no inicio)
+std::string zelda_game_dir() {
+    const std::string p = ini_path();
+    return p.substr(0, p.find_last_of("\\/"));
+}
+std::string zelda_mods_off_path() { return zelda_game_dir() + "\\zelda\\mods_desligados.txt"; }
+int zelda_mods_signature() {
+    unsigned h = 2166136261u;
+    for (int i = 0; i < kZeldaMods; i++)
+        if (zelda_mod_nome[i][0] && !zelda_mod_on[i])
+            for (const char* p = zelda_mod_nome[i]; *p; p++) h = (h ^ (unsigned char)*p) * 16777619u;
+    return (int)(h & 0x7fffffff);
+}
+void zelda_mods_scan() {
+    std::vector<std::string> off;
+    if (FILE* f = fopen(zelda_mods_off_path().c_str(), "r")) {
+        char b[256];
+        while (fgets(b, sizeof b, f)) {
+            std::string s = b;
+            while (!s.empty() && (s.back() == '\n' || s.back() == '\r' || s.back() == ' ')) s.pop_back();
+            if (!s.empty()) off.push_back(s);
+        }
+        fclose(f);
+    }
+    std::vector<std::string> nomes;
+    WIN32_FIND_DATAA fd;
+    const std::string root = zelda_game_dir() + "\\mods";
+    HANDLE h = FindFirstFileA((root + "\\*").c_str(), &fd);
+    if (h != INVALID_HANDLE_VALUE) {
+        do {
+            if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) || strchr(".-_", fd.cFileName[0])) continue;
+            if (GetFileAttributesA((root + "\\" + fd.cFileName + "\\romfs").c_str()) == INVALID_FILE_ATTRIBUTES) continue;
+            nomes.push_back(fd.cFileName);
+        } while (FindNextFileA(h, &fd));
+        FindClose(h);
+    }
+    std::sort(nomes.begin(), nomes.end(), [](const std::string& a, const std::string& b) { return _stricmp(a.c_str(), b.c_str()) < 0; });
+    for (int i = 0; i < kZeldaMods; i++) {
+        zelda_mod_nome[i][0] = 0;
+        zelda_mod_on[i] = 0;
+        if (i >= (int)nomes.size()) continue;
+        snprintf(zelda_mod_nome[i], sizeof zelda_mod_nome[i], "%s", nomes[i].c_str());
+        bool desl = false;
+        for (const std::string& o : off) desl |= !_stricmp(o.c_str(), nomes[i].c_str());
+        zelda_mod_on[i] = desl ? 0 : 1;
+    }
+    zelda_mods_sig = zelda_mods_signature();
+}
+/// (save) grava a lista dos desligados (os desligados que nao estao mais na pasta ficam: voltam desligados)
+void zelda_mods_sync() {
+    std::vector<std::string> off;
+    if (FILE* f = fopen(zelda_mods_off_path().c_str(), "r")) {
+        char b[256];
+        while (fgets(b, sizeof b, f)) {
+            std::string s = b;
+            while (!s.empty() && (s.back() == '\n' || s.back() == '\r' || s.back() == ' ')) s.pop_back();
+            bool listado = false;
+            for (int i = 0; i < kZeldaMods; i++) listado |= zelda_mod_nome[i][0] && !_stricmp(s.c_str(), zelda_mod_nome[i]);
+            if (!s.empty() && !listado) off.push_back(s);
+        }
+        fclose(f);
+    }
+    for (int i = 0; i < kZeldaMods; i++)
+        if (zelda_mod_nome[i][0] && !zelda_mod_on[i]) off.push_back(zelda_mod_nome[i]);
+    if (FILE* f = fopen(zelda_mods_off_path().c_str(), "w")) {
+        for (const std::string& s : off) fprintf(f, "%s\n", s.c_str());
+        fclose(f);
+    }
+    zelda_mods_sig = zelda_mods_signature();
+}
 void save() {
+    zelda_mods_sync();   // (Zelda: AchadoIA)
     // (hookshot) the lines that are not the menu's are kept: the controls, pad_ and key_ (host/nn_hid.c)
     // (and every other line the menu does not write, such as discord_app_id=: they were dropped at the next save)
     std::string kept, others;
@@ -1293,6 +1405,8 @@ void save() {
             if (r.value == &opts.output_res) {   // (the size itself: host/nn_applet.c reads it)
                 const Out o = output_at(*r.value);
                 fprintf(f, "%s=%ux%u\n", ini_key(r), o.w, o.h);
+            } else if (r.value && (r.value == &zelda_mods_sig || is_zelda_mod_row(r.value))) {
+                // (Zelda: AchadoIA) os mods ficam em zelda\mods_desligados.txt
             } else if (r.value) {
                 fprintf(f, "%s=%d\n", ini_key(r), *r.value);
             }
@@ -1853,7 +1967,7 @@ void draw_options(ui::Ctx& c) {
     ui::banner(c, hh);
     // the tabs in the banner: dark ink on the tan, the shown one light on a dark inset; the tab keys at their ends (a click there
     // is the previous or the next tab)
-    const char* const tab_titles[TAB_COUNT] = {"Graphics", "Audio", "Gameplay", "Controls", "Debug"};
+    const char* const tab_titles[TAB_COUNT] = {"Graphics", "Audio", "Gameplay", "Controls", "Debug", "Mods"};
     float tw[TAB_COUNT], total = 0;
     for (int i = 0; i < TAB_COUNT; i++) tw[i] = ui::size_of(c.f.heading, 23 * s, tab_titles[i]).x + 56 * s, total += tw[i];
     float x = (c.w - total) * 0.5f;
@@ -1899,7 +2013,7 @@ void draw_options(ui::Ctx& c) {
     const int count = tab_row_count(cur_tab), sel = tab_selected[cur_tab];
     const Row& selr = rows[tab_row_to_global(cur_tab, sel)];
     const char* hint = selr.value && selr.hint ? selr.hint(*selr.value, -1) : nullptr;
-    const std::string pending_line = (cur_tab == TAB_GRAPHICS || cur_tab == TAB_DEBUG) && restart_pending() ? restart_line(c, 16 * s, hx1 - hx0 - 66 * s) : "";
+    const std::string pending_line = (cur_tab == TAB_GRAPHICS || cur_tab == TAB_DEBUG || cur_tab == TAB_MODS) && restart_pending() ? restart_line(c, 16 * s, hx1 - hx0 - 66 * s) : "";
     static float help_tall = 0, help_tall_w = 0;
     if (help_tall_w != hx1 - hx0) help_tall_w = hx1 - hx0, help_tall = measure_help(c, hx1 - hx0 - 48 * s);
     // (a row that opens a page (Motion, Controls, Open debug tools): A or Enter opens it; Restart and Quit: A or Enter twice)
@@ -2740,6 +2854,8 @@ void menu_option_set(int id, int value) {
         if (value) zelda::live_link_ns.store(prof_now(), std::memory_order_relaxed);   // (o tracker: so com o Link em jogo)
         return;
     case ZELDA_ID_MENU: zelda::live_menu.store(value, std::memory_order_relaxed); return;
+    case ZELDA_ID_RUPIAS: zelda::live_rupias.store(value, std::memory_order_relaxed); return;
+    case ZELDA_ID_HORA: zelda::live_hora.store(value, std::memory_order_relaxed); return;
     default: break;
     }
     if (id == OOT_CHEAT_AGE_ID) {   // (Link's age: the Switch age row shows it)
@@ -3303,7 +3419,8 @@ void menu_record(VkCommandBuffer cmd, uint32_t index, uint32_t w, uint32_t h) {
     const bool open = open_now.load(std::memory_order_relaxed);
     const bool badge = !start && !open && zelda::badge_wanted();   // (Zelda: AchadoIA) o modo de jogo, na tela de titulo
     const bool tracker = !start && !open && zelda_tracker && zelda::tracker_wanted(prof_now());   // (Zelda: AchadoIA)
-    if (!start && !fps && !open && !badge && !tracker) {   // (nothing shows: no ImGui frame, no render pass)
+    const bool hud = !start && !open && zelda_hud && zelda::hud_wanted(prof_now());   // (Zelda: AchadoIA) o HUD do Tempo
+    if (!start && !fps && !open && !badge && !tracker && !hud) {   // (nothing shows: no ImGui frame, no render pass)
         // (but a new window size or Menu size since the last bake: one frame with nothing drawn that bakes the menu's glyphs
         // and measures its page for the new size, so the next open has no hitch whatever was resized while nothing showed)
         if (prebake_needed(w, h) && ui::begin(w, h)) {
@@ -3328,6 +3445,7 @@ void menu_record(VkCommandBuffer cmd, uint32_t index, uint32_t w, uint32_t h) {
     if (start) draw_startup(c);   // (under the menu)
     if (badge) zelda::draw_badge(c, zelda_pad > 0 ? pad_name(zelda_pad - 1) : nullptr);
     if (tracker) zelda::draw_tracker(c, zelda_tracker_alpha, zelda_tracker_size);
+    if (hud) zelda::draw_hud(c, zelda_hud_24h != 0, zelda_hud_size, zelda_hud_canto);
     if (open) draw_menu(c);
     if (fps) draw_fps(c, open);
     ::mkwvk::rec::boundary(::mkwvk::rec::B_DIRECT);   // (Dear ImGui records into cmd directly, its backend through its own pointers: what this thread recorded through vk_work.h reaches cmd first)
@@ -3339,11 +3457,13 @@ void menu_record_image(VkCommandBuffer cmd, VkImage image, VkImageView view, uin
     const bool fps = opts.show_fps && !startup_on.load(std::memory_order_acquire);
     const bool badge = !open && !startup_on.load(std::memory_order_acquire) && zelda::badge_wanted();   // (Zelda: AchadoIA)
     const bool tracker = !open && !startup_on.load(std::memory_order_acquire) && zelda_tracker && zelda::tracker_wanted(prof_now());
-    if (!open && !fps && !badge && !tracker) return;
+    const bool hud = !open && !startup_on.load(std::memory_order_acquire) && zelda_hud && zelda::hud_wanted(prof_now());
+    if (!open && !fps && !badge && !tracker && !hud) return;
     if (!ui::begin(w, h)) return;
     ui::Ctx c = ui_ctx(w, h);
     if (badge) zelda::draw_badge(c, zelda_pad > 0 ? pad_name(zelda_pad - 1) : nullptr);
     if (tracker) zelda::draw_tracker(c, zelda_tracker_alpha, zelda_tracker_size);
+    if (hud) zelda::draw_hud(c, zelda_hud_24h != 0, zelda_hud_size, zelda_hud_canto);
     if (open) draw_menu(c);
     if (fps) draw_fps(c, open);
     ::mkwvk::rec::boundary(::mkwvk::rec::B_DIRECT);   // (Dear ImGui records into cmd directly, its backend through its own pointers: what this thread recorded through vk_work.h reaches cmd first)

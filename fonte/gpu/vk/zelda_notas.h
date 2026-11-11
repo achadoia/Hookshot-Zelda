@@ -30,6 +30,7 @@ bool rando_save = false; // (save_randomizer tem um jogo)
 
 // (do lado do jogo: menu_option_set)
 std::atomic<int> live_banc{0}, live_x{0}, live_z{0}, live_link{0}, live_menu{0};
+std::atomic<int> live_rupias{-1}, live_hora{-1};   // (o HUD do Tempo: draw_hud)
 int pad_button = 0;   // (0 nenhum, senao HOS_PAD_* + 1: a linha "Mapa do Zelda: botao" dos Controles)
 
 std::string read_line(const std::string& p) {
@@ -991,6 +992,84 @@ void draw_tracker(ui::Ctx& c, int opacity_pct, int size_pct) {
         }
         y += cell + gap;
     }
+}
+
+// ---- o HUD do Tempo (a aba Mods): no lugar do mod "HUD of Time" (um subsdk9 de exefs, que o Hookshot nao carrega: o codigo
+// e compilado antes). Le o mesmo relogio que ele (host/hos_main.c zelda_hud_refresh) e mostra a hora (24 h por padrao) com o
+// sol ou a lua, e as rupias sempre, so em jogo ----
+bool hud_wanted(int64_t now) {
+    return now - live_link_ns.load(std::memory_order_relaxed) < 1500000000LL &&
+           (live_hora.load(std::memory_order_relaxed) >= 0 || live_rupias.load(std::memory_order_relaxed) >= 0);
+}
+void hud_text(ui::Ctx& c, float px, ImVec2 p, ImU32 col, const char* t) {
+    for (int dx = -1; dx <= 1; dx++)
+        for (int dy = -1; dy <= 1; dy++)
+            if (dx || dy) ui::text(c, c.f.strong, px, p + ImVec2(dx * 1.4f * c.s, dy * 1.4f * c.s), ui::rgba(0, 0, 0, 220), t);
+    ui::text(c, c.f.strong, px, p, col, t);
+}
+void draw_hud(ui::Ctx& c, bool h24, int size_pct, int canto) {
+    const float s = c.s * std::clamp(size_pct, 60, 200) / 100.0f;
+    const int seg = live_hora.load(std::memory_order_relaxed), rup = live_rupias.load(std::memory_order_relaxed);
+    char hora[16] = "--:--", rupias[16] = "--";
+    bool dia = true;
+    if (seg >= 0) {
+        const int hh = seg / 3600 % 24, mm = seg / 60 % 60;
+        dia = hh >= 6 && hh < 18;   // (o dia de Hyrule: das 6 as 18)
+        if (h24) snprintf(hora, sizeof hora, "%02d:%02d", hh, mm);
+        else snprintf(hora, sizeof hora, "%d:%02d %s", hh % 12 ? hh % 12 : 12, mm, hh < 12 ? "AM" : "PM");
+    }
+    if (rup >= 0) snprintf(rupias, sizeof rupias, "%d", rup);
+    const float px = 24 * s, icon = 26 * s, pad = 9 * s, gap = 8 * s, line = 30 * s;
+    const float tw = std::max(ui::size_of(c.f.strong, px, hora).x, ui::size_of(c.f.strong, px, rupias).x);
+    const float W = pad * 2 + icon + gap + tw, H = pad * 2 + line * 2;
+    const float m = c.safe + 14 * c.s;
+    const float x = (canto == 1 || canto == 3) ? m : c.w - m - W;
+    const float y = canto >= 2 ? m + 40 * c.s : c.h - m - H;   // (em cima: abaixo do contador de FPS)
+    const ImVec2 a(x, y), b(x + W, y + H);
+    c.d->AddRectFilled(a, b, ui::rgba(20, 15, 9, 170), 7 * s);
+    c.d->AddRect(a, b, ui::rgba(122, 98, 64, 190), 7 * s, 0, 1.2f * s);
+    // o sol (com raios) ou a lua (crescente)
+    const ImVec2 ic(a.x + pad + icon * 0.5f, a.y + pad + line * 0.5f);
+    if (dia) {
+        const float r = icon * 0.24f;
+        for (int k = 0; k < 8; k++) {
+            const float ang = k * 3.14159265f / 4;
+            const ImVec2 d(cosf(ang), sinf(ang));
+            c.d->AddLine(ic + d * (r * 1.45f), ic + d * (icon * 0.48f), ui::rgba(255, 200, 60), 2.2f * s);
+        }
+        c.d->AddCircleFilled(ic, r, ui::rgba(255, 214, 80), 24);
+        c.d->AddCircle(ic, r, ui::rgba(255, 150, 30), 24, 1.5f * s);
+    } else {
+        // (a lua crescente: os pontos do circulo de fora que ficam fora do circulo que a "come" (io), do lado oposto a ele, e
+        // de volta os pontos desse circulo que ficam dentro do de fora; os dois a partir da mesma direcao: uma volta so)
+        const float r = icon * 0.42f;
+        const ImVec2 o(r * 0.55f, -r * 0.3f), io = ic + o;
+        const float base = atan2f(-o.y, -o.x);
+        ImVec2 poly[130];
+        int n = 0;
+        for (int k = -60; k <= 60; k++) {
+            const float t = base + k * 3.14159265f / 60;
+            const ImVec2 p = ic + ImVec2(cosf(t), sinf(t)) * r, d = p - io;
+            if (d.x * d.x + d.y * d.y >= r * r) poly[n++] = p;
+        }
+        for (int k = 60; k >= -60 && n < 130; k--) {
+            const float t = base + k * 3.14159265f / 60;
+            const ImVec2 p = io + ImVec2(cosf(t), sinf(t)) * r, d = p - ic;
+            if (d.x * d.x + d.y * d.y < r * r) poly[n++] = p;
+        }
+        if (n >= 3) c.d->AddConcavePolyFilled(poly, n, ui::rgba(235, 238, 255));
+    }
+    hud_text(c, px, ImVec2(a.x + pad + icon + gap, a.y + pad + (line - px) * 0.5f - 2 * s), ui::rgba(255, 246, 220), hora);
+    // a rupia (o losango alongado verde do jogo)
+    const ImVec2 rc(ic.x, ic.y + line);
+    const float rw = icon * 0.26f, rh = icon * 0.46f;
+    const ImVec2 pts[6] = {rc + ImVec2(0, -rh), rc + ImVec2(rw, -rh * 0.5f), rc + ImVec2(rw, rh * 0.5f), rc + ImVec2(0, rh),
+                           rc + ImVec2(-rw, rh * 0.5f), rc + ImVec2(-rw, -rh * 0.5f)};
+    c.d->AddConvexPolyFilled(pts, 6, ui::rgba(40, 190, 70));
+    const ImVec2 inn[4] = {rc + ImVec2(0, -rh * 0.55f), rc + ImVec2(rw * 0.45f, 0), rc + ImVec2(0, rh * 0.55f), rc + ImVec2(-rw * 0.45f, 0)};
+    c.d->AddConvexPolyFilled(inn, 4, ui::rgba(140, 240, 150));
+    c.d->AddPolyline(pts, 6, ui::rgba(10, 70, 25), ImDrawFlags_Closed, 1.4f * s);
+    hud_text(c, px, ImVec2(a.x + pad + icon + gap, a.y + pad + line + (line - px) * 0.5f - 2 * s), ui::rgba(150, 255, 150), rupias);
 }
 
 }   // namespace zelda

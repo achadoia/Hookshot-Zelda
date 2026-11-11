@@ -25,6 +25,8 @@ guarda as mudanças nesses arquivos e recompila a pasta do jogo com elas.
 | F7 / botão do controle | Em jogo: o **mapa** (página 6 do menu). Na tela de título: o **modo de jogo** (página 7). |
 | Menu Insert > Controls | Linha nova **"Mapa do Zelda: botão"**: Nenhum, L3, R3... (salva como `zelda_mapa_pad`). |
 | Tela de título | Selo no canto inferior esquerdo: modo atual (NORMAL / RANDOMIZER + seed) e a tecla. |
+| Menu F1 > **Mods** (aba nova) | **HUD do Tempo** (liga, relógio 24 h / 12 h, tamanho, canto) e uma linha por pasta de `D:\hookshot\mods` com `romfs` (até 24). Desligar grava o nome em `zelda\mods_desligados.txt`, que `host/mods.c` pula no início; ao fechar o menu ele pergunta se reinicia (uma linha escondida "Mods" ocupa um só lugar dos 16 de reinício). |
+| HUD do Tempo | Hora do dia de Hyrule (sol 6h–18h / lua) e rupias, sempre na tela em jogo. Substitui o mod "HUD of Time", que é `exefs/subsdk9` (código ARM): o Hookshot não carrega exefs. Lê o mesmo relógio que ele: `*(0x84e7eab0)+0x578`, método virtual `+0x30` = segundos do dia. Rupias = GameData Int `PlayerStatus.CurrentRupee` (`0xa77921d7`) pelo getter de Int `f_80857070` (`hos_main.c zelda_hud_refresh`). |
 | Randomizer | Embaralha os 98 baús de item (E:\OoT-Notas\randomizer). Só **novo jogo**, saves separados. |
 | Correr no B | Segurando B com o analógico inclinado (0,15 s), o jogo recebe A segurado: rola e corre como segurando A. O toque de B continua só B (cancelar, descer da escada). Só em jogo; `correr_b=0` em `zelda\config.ini` desliga. |
 | Bracelete (randomizer) | Puxar a bomba é "levantar" (como a flor-bomba) e o Remake só deixa com o Bracelete Goron. Com a bolsa de bombas de um baú e sem o bracelete, o bracelete entra junto (`hos_main.c`, `oot_inventory_refresh`). |

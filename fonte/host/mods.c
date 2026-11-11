@@ -113,12 +113,43 @@ static int index_romfs(const char *host_dir, const char *rel, int depth) {
 typedef struct { char path[MAX_PATH]; char name[MAX_PATH]; } Mod;
 static Mod *mods;
 static int nmods, cap_mods;
+/* (Zelda: AchadoIA) os mods desligados na aba Mods do menu (gpu/vk/vk_menu.cpp zelda_mods_sync): <pasta>\zelda\
+   mods_desligados.txt, o nome da pasta do mod por linha */
+static char *zelda_off;   /* (o arquivo inteiro, linhas separadas por 0) */
+static size_t zelda_off_n;
+const char *hos_zelda_dir(void);
+static void zelda_off_load(void) {
+    char p[MAX_PATH];
+    snprintf(p, sizeof p, "%s\\mods_desligados.txt", hos_zelda_dir());
+    FILE *f = fopen(p, "rb");
+    if (!f) return;
+    fseek(f, 0, SEEK_END);
+    const long n = ftell(f);
+    fseek(f, 0, SEEK_SET);
+    if (n > 0 && n < 65536 && (zelda_off = (char *)calloc((size_t)n + 1, 1)) != NULL) {
+        zelda_off_n = fread(zelda_off, 1, (size_t)n, f);
+        for (size_t i = 0; i < zelda_off_n; i++)
+            if (zelda_off[i] == '\n' || zelda_off[i] == '\r') zelda_off[i] = 0;
+    }
+    fclose(f);
+}
+static int zelda_mod_off(const char *name) {
+    const char *base = strrchr(name, '/');
+    base = base ? base + 1 : name;
+    for (size_t i = 0; i < zelda_off_n; i += strlen(zelda_off + i) + 1)
+        if (zelda_off[i] && (!_stricmp(zelda_off + i, base) || !_stricmp(zelda_off + i, name))) return 1;
+    return 0;
+}
 static void find_mods(const char *dir, const char *name, int depth) {
     char probe[MAX_PATH];
     snprintf(probe, sizeof probe, "%s\\romfs", dir);
     const int has_romfs = GetFileAttributesA(probe) != INVALID_FILE_ATTRIBUTES;
     snprintf(probe, sizeof probe, "%s\\exefs", dir);
     const int has_exefs = GetFileAttributesA(probe) != INVALID_FILE_ATTRIBUTES;
+    if ((has_romfs || has_exefs) && depth > 0 && zelda_mod_off(name)) {
+        hos_log("mods: %s esta desligado (aba Mods: zelda\\mods_desligados.txt)", name);
+        return;
+    }
     if ((has_romfs || has_exefs) && depth > 0) {
         if (nmods == cap_mods) mods = (Mod *)realloc(mods, sizeof *mods * (size_t)(cap_mods = cap_mods ? cap_mods * 2 : 16));
         snprintf(mods[nmods].path, MAX_PATH, "%s", dir);
@@ -196,6 +227,7 @@ static void hos_mods_init_folder(void) {
         snprintf(slash + 1, sizeof root - (size_t)(slash + 1 - root), "mods");
     }
     if (GetFileAttributesA(root) == INVALID_FILE_ATTRIBUTES) return;
+    zelda_off_load();
     find_mods(root, "", 0);
     if (!nmods) {
         hos_log("mods: none in %s (a mod: <name>\\romfs)", root);
