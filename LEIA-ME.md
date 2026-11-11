@@ -72,3 +72,12 @@ na ResourceSizeTable (a margem original é de ~284 bytes). O gerador agora grava
 - `host/mods.c` — `hos_zelda_rando`, `hos_zelda_dir`, a camada da seed.
 - `host/nn_fs.c` — `save_randomizer`.
 - `host/prompts.c` — a RSTB da seed.
+
+## O patch em .exe (sem Python, sem Git)
+
+`python patcher\build.py` monta `Hookshot-Zelda-Patch.exe` (fica fora do git: leva os dados do mapa do jogo, ~24 MB).
+Ele leva `fonte\`, `originais\` e `D:\hookshot\zelda\notas\` dentro, acha o builder e o jogo sozinho (ou pede o hookshot.exe),
+junta em 3 vias com um diff3 próprio (`patcher\diff3.cs`, testado igual ao `git merge-file`), copia os dados que faltarem
+e recompila com o Python do próprio builder. O estado (originais/fonte juntados com versões novas, build.log, conflitos\)
+fica em `%LOCALAPPDATA%\HookshotZelda`. Sem janela: `--aplicar` / `--remover` [`--jogo X`] [`--sem-recompilar`] (log em patch.log).
+Mudou algo em fonte\? Rode o build de novo para o exe levar a mudança.
