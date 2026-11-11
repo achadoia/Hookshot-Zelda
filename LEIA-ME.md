@@ -58,6 +58,7 @@ na ResourceSizeTable (a margem original é de ~284 bytes). O gerador agora grava
 - `gpu/vk/zelda_ids.h` (novo) — ids do estado ao vivo (5000–5004), `zelda_fnv`, a pasta `zelda` e o modo.
 - `gpu/vk/zelda_notas.h` (novo) — dados, imagens (zstd → ImTextureData), save, flags ao vivo, páginas 6 e 7, selo.
 - `gpu/vk/vk_menu.cpp` — F7 (tecla 17), botão do controle, linha nos Controles, páginas, selo, `menu_option_set`.
+- `gpu/vk/vk_imgui.cpp` — o espaço de imagens do menu de 16 para 256 (com 16, o mapa F7 esgotava o espaço depois de 2 ou 3 áreas e o Hookshot parava de desenhar menu, mapa e FPS até reiniciar).
 - `host/hos_main.c` — `zelda_push_state` no gancho do Link; marca a hora da última atualização do Link (`hos_zelda_link_ns`).
 - `host/nn_hid.c` — correr no B (`zelda_b_dash`).
 - `host/oot_menu.c` — avisa quando uma tela de menu do jogo está na frente (o selo do título).
