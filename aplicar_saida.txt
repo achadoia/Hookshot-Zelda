@@ -1,0 +1,1561 @@
+copiados 10 arquivos de E:\Hookshot-Zelda\fonte para o builder (selo 78e181f2f1d0)
+recompilando: C:\Users\Matheus\AppData\Local\HookshotBuilder\versions\v2.1.0\HookshotBuilder\tools\python\python.exe -I -u -X utf8 C:\Users\Matheus\AppData\Local\HookshotBuilder\versions\v2.1.0\HookshotBuilder\tools\nx2\make_game.py --update D:\hookshot --log E:\Hookshot-Zelda\build.log
+build: up to 12 compilers at once (one per CPU thread), as the memory allows; HOOKSHOT_JOBS=<n> to change
+the compiler: C:\Users\Matheus\AppData\Local\HookshotBuilder\versions\v2.1.0\HookshotBuilder\tools\llvm-mingw (no Visual Studio needed)
+@@stage read Reading your game files
+@@stage lift Translating the game to PC code
+host/ defines 3 imp_ functions for symbols no module has (unused):
+  _ZN2nn2os11SystemEventC2ENS0_14EventClearModeEb
+  _ZN2nn2os11SystemEventD2Ev
+  _ZN2nn5audio29SetVoiceBiquadFilterParameterEPNS0_9VoiceTypeEiRKNS0_21BiquadFilterParameterE
+standalone: 529 HLE functions in host/, 218 OS-facing imports stubbed
+image: rtld@0x80000000+0x20000, main@0x80020000+0x4ea0000, subsdk0@0x84ec0000+0xe0000, sdk@0x84fa0000+0x1080000; 295178 entries, 0 trampolines (0 unresolved non-weak imports) (6s)
+ADR / ADRP+ADD code addresses outside the 284387 unwind-covered functions: 14083, 79 of them new entries
+widescreen: 11 of 11 sites
+dlss jitter: 3 of 3 sites
+occlusion off: 6 of 6 sites
+discovered 294523 functions (76s)
+module    functions  complete   leaf      instructions  untranslated  BLR       BR(not table)
+main         249484  100.00%     87939      15379565             0    166923     10691
+sdk           43492  100.00%     23555       2131915             0     15068     12288
+subsdk0        1503  100.00%       789        132606             0       774       543
+rtld             44  100.00%        19          2370             0        26         6
+all          294523  100.00%    112302      17646456             0    182791     23528
+undefined encodings reached (UDF, unallocated: trap, as on the hardware): 18530 sites
+translated instructions: 100.0000% of 17646456 (shared tails counted once per function)
+jump tables 1475 (bounded 1385, bounded by function 58, ADR table 1), BR without a table 0, PLT stubs 9917
+jump tables whose table register is reused before the br: 7
+hot functions (A64_HOT_FUNCS): 849 of 849 listed found, in code_hot.c
+chunks: code_006.c (42 MB, cost 54 MB) in 3 parts
+chunks: code_013.c (23 MB, cost 44 MB) in 2 parts
+chunks: code_017.c (42 MB, cost 55 MB) in 3 parts
+chunks: code_018.c (22 MB, cost 36 MB) in 2 parts
+chunks: code_020.c (23 MB, cost 40 MB) in 2 parts
+chunks: code_021.c (18 MB, cost 112 MB) in 5 parts
+chunks: code_022.c (26 MB, cost 155 MB) in 5 parts
+chunks: code_023.c (22 MB, cost 192 MB) in 3 parts
+chunks: 73, boundaries kept
+oot_native_resolution: scene base scale (f_806702e0) in code_005.c
+oot_native_resolution: scene scale check (f_831f3200) in code_038.c
+oot_patches: the menus' focus hook in code_002.c
+oot_patches: player heart protection in code_004.c
+oot_patches: movement speed in code_004.c
+oot_patches: player flight rotation in code_005.c
+oot_patches: the frame's time at 1 step divide(s) in code_006.c
+oot_patches: dynamic resolution switch in code_006_1.c
+oot_patches: movement speed in code_007.c
+oot_patches: text speed scale and text size in code_008.c
+oot_patches: the fixed path's scale in code_038.c
+oot_patches: the movie's frame count by the frames' time in code_046.c
+oot_patches: the frame's time at 1 step divide(s) in code_046.c
+oot_patches: the menus' update hook in code_hot.c
+oot_patches: player flight in code_hot.c
+oot_patches: native mouse camera in code_hot.c
+oot_patches: disable camera centering switch in code_hot.c
+oot_patches: free camera in code_hot.c
+oot_patches: output size in code_008.c
+oot_patches: output size in code_010.c
+oot_patches: output size in code_012.c
+oot_patches: output size in code_013_1.c
+oot_patches: output size in code_042.c
+oot_patches: output size in code_046.c
+standalone: hos_image.c (thread hooks 0x85e5dc40, 0x85e5dc48), 218 import stubs
+standalone: nvn2_exports.c (22 sdk NVN functions routed to host/nvn2.c)
+functions 294523, instructions 17646456 (with shared tails), jump tables 1475, indirect BR 13260 of 25011, PLT stubs 9917, unhandled words 16 (18530 sites), bad targets 0
+jump tables: 1385 bounded, 58 bounded by the function, 3 rejected (target outside), 0 table not found
+br to a code constant: 1; br with adr candidates: 39
+page marks: 155531 groups share one mark for 689224 of 1055510 stores through a base register
+interrupt polls: 683147 loop headers in 113685 functions
+wrote 73 code files to C:\Users\Matheus\AppData\Local\HookshotBuilder\sa\gen (349s)
+done (349s)
+split_hot: piece 0: 47 functions, 10 MB, cost 34 MB
+split_hot: piece 1: 49 functions, 10 MB, cost 25 MB
+split_hot: piece 2: 159 functions, 11 MB, cost 21 MB
+split_hot: piece 3: 179 functions, 13 MB, cost 21 MB
+split_hot: piece 4: 73 functions, 6 MB, cost 21 MB
+split_hot: piece 5: 82 functions, 7 MB, cost 21 MB
+split_hot: piece 6: 69 functions, 6 MB, cost 21 MB
+split_hot: piece 7: 191 functions, 13 MB, cost 21 MB
+split_hot: 2126 of 2984 calls stay in one group
+@@stage compile Compiling
+version: v2.1.0 (source 91fea0b4)
+object keys: game-code headers 04b6235926, flags 4e8397c788, hot flags c5dd10f8e3, lifted code e0b1374ad4 (80 files)
+no wgpu-native at C:\Users\Matheus\Desktop\TOTKPort\third_party\wgpu-native (WGPU_NATIVE): building without the renderer
+the Vulkan back end: Vulkan C:\Users\Matheus\AppData\Local\HookshotBuilder\versions\v2.1.0\HookshotBuilder\tools\cpm\vulkanheaders\v1.4.345, SPIR-V C:\Users\Matheus\AppData\Local\HookshotBuilder\versions\v2.1.0\HookshotBuilder\tools\cpm\spirv-headers\vulkan-sdk-1.4.341.0, VMA C:\Users\Matheus\AppData\Local\HookshotBuilder\versions\v2.1.0\HookshotBuilder\tools\cpm\vulkanmemoryallocator\v3.3.0
+the Vulkan back end: with AMD FSR 4 (AMD's FSR API headers, third_party/fidelityfx)
+@@plan 35 471
+@@eta 30
+471 files, 12 jobs, -D_CRT_SECURE_NO_WARNINGS -O1 -DA64_POLLING -DA64_WRITE_TRACK
+  code_hot_0.c       11 MB       0s  (0s)
+@@progress 0.038
+@@file code_hot_0.c 0.0 cached
+  code_023.c          6 MB       0s  (0s)
+@@progress 0.041
+@@file code_023.c 0.0 cached
+  code_hot_1.c       11 MB       0s  (0s)
+@@progress 0.079
+@@file code_hot_1.c 0.0 cached
+  code_hot_2.c       11 MB       0s  (0s)
+@@progress 0.118
+@@file code_hot_2.c 0.0 cached
+  code_hot_5.c        7 MB       0s  (0s)
+@@progress 0.143
+@@file code_hot_5.c 0.0 cached
+  code_hot_3.c       13 MB       0s  (0s)
+@@progress 0.189
+@@file code_hot_3.c 0.0 cached
+  code_hot_6.c        6 MB       0s  (0s)
+@@progress 0.213
+@@file code_hot_6.c 0.0 cached
+  code_022_2.c        3 MB       0s  (0s)
+@@progress 0.215
+@@file code_022_2.c 0.0 cached
+  code_hot_7.c       13 MB       0s  (0s)
+@@progress 0.260
+@@file code_hot_7.c 0.0 cached
+  code_023_1.c        4 MB       0s  (0s)
+@@progress 0.262
+@@file code_023_1.c 0.0 cached
+  code_hot_4.c        6 MB       0s  (0s)
+@@progress 0.283
+@@file code_hot_4.c 0.0 cached
+  code_021_1.c        5 MB       0s  (0s)
+@@progress 0.286
+@@file code_021_1.c 0.0 cached
+  code_045.c         24 MB       0s  (0s)
+@@progress 0.298
+@@file code_045.c 0.0 cached
+  code_050.c         24 MB       0s  (0s)
+@@progress 0.310
+@@file code_050.c 0.0 cached
+  code_015.c         23 MB       0s  (0s)
+@@progress 0.322
+@@file code_015.c 0.0 cached
+  code_049.c         24 MB       0s  (0s)
+@@progress 0.334
+@@file code_049.c 0.0 cached
+  code_022.c         10 MB       0s  (0s)
+@@progress 0.339
+@@file code_022.c 0.0 cached
+  code_047.c         24 MB       0s  (0s)
+@@progress 0.352
+@@file code_047.c 0.0 cached
+  code_022_4.c        4 MB       0s  (0s)
+@@progress 0.354
+@@file code_022_4.c 0.0 cached
+  code_008.c         23 MB       0s  (0s)
+@@progress 0.366
+@@file code_008.c 0.0 cached
+  code_040.c         24 MB       0s  (0s)
+@@progress 0.378
+@@file code_040.c 0.0 cached
+  code_043.c         24 MB       0s  (0s)
+@@progress 0.390
+@@file code_043.c 0.0 cached
+  code_037.c         24 MB       0s  (0s)
+@@progress 0.402
+@@file code_037.c 0.0 cached
+  code_024.c         23 MB       0s  (0s)
+@@progress 0.414
+@@file code_024.c 0.0 cached
+  code_025.c         24 MB       0s  (0s)
+@@progress 0.426
+@@file code_025.c 0.0 cached
+  code_046.c         24 MB       0s  (0s)
+@@progress 0.438
+@@file code_046.c 0.0 cached
+  code_041.c         24 MB       0s  (0s)
+@@progress 0.450
+@@file code_041.c 0.0 cached
+  code_019.c         21 MB       0s  (0s)
+@@progress 0.461
+@@file code_019.c 0.0 cached
+  code_016.c         24 MB       0s  (0s)
+@@progress 0.473
+@@file code_016.c 0.0 cached
+  code_034.c         23 MB       0s  (0s)
+@@progress 0.484
+@@file code_034.c 0.0 cached
+  code_010.c         24 MB       0s  (0s)
+@@progress 0.497
+@@file code_010.c 0.0 cached
+  code_030.c         24 MB       0s  (0s)
+@@progress 0.509
+@@file code_030.c 0.0 cached
+  code_039.c         24 MB       0s  (0s)
+@@progress 0.521
+@@file code_039.c 0.0 cached
+  code_051.c         24 MB       0s  (0s)
+@@progress 0.533
+@@file code_051.c 0.0 cached
+  code_035.c         23 MB       0s  (0s)
+@@progress 0.545
+@@file code_035.c 0.0 cached
+  code_053.c         24 MB       0s  (0s)
+@@progress 0.557
+@@file code_053.c 0.0 cached
+  code_007.c         23 MB       0s  (0s)
+@@progress 0.568
+@@file code_007.c 0.0 cached
+  code_052.c         24 MB       0s  (0s)
+@@progress 0.580
+@@file code_052.c 0.0 cached
+  code_036.c         23 MB       0s  (0s)
+@@progress 0.592
+@@file code_036.c 0.0 cached
+  code_027.c         24 MB       0s  (0s)
+@@progress 0.604
+@@file code_027.c 0.0 cached
+  code_026.c         24 MB       0s  (0s)
+@@progress 0.616
+@@file code_026.c 0.0 cached
+  code_028.c         24 MB       0s  (0s)
+@@progress 0.629
+@@file code_028.c 0.0 cached
+  code_044.c         24 MB       0s  (0s)
+@@progress 0.641
+@@file code_044.c 0.0 cached
+  code_014.c         24 MB       0s  (0s)
+@@progress 0.653
+@@file code_014.c 0.0 cached
+  code_011.c         24 MB       0s  (0s)
+@@progress 0.665
+@@file code_011.c 0.0 cached
+  code_042.c         24 MB       0s  (0s)
+@@progress 0.677
+@@file code_042.c 0.0 cached
+  code_009.c         23 MB       0s  (0s)
+@@progress 0.689
+@@file code_009.c 0.0 cached
+  code_031.c         24 MB       0s  (0s)
+@@progress 0.701
+@@file code_031.c 0.0 cached
+  code_004.c         19 MB       0s  (0s)
+@@progress 0.711
+@@file code_004.c 0.0 cached
+  code_012.c         24 MB       0s  (0s)
+@@progress 0.723
+@@file code_012.c 0.0 cached
+  code_048.c         24 MB       0s  (0s)
+@@progress 0.735
+@@file code_048.c 0.0 cached
+  code_033.c         24 MB       0s  (0s)
+@@progress 0.747
+@@file code_033.c 0.0 cached
+  code_022_3.c        2 MB       0s  (0s)
+@@progress 0.749
+@@file code_022_3.c 0.0 cached
+  code_013.c          6 MB       0s  (0s)
+@@progress 0.752
+@@file code_013.c 0.0 cached
+  code_038.c         23 MB       0s  (0s)
+@@progress 0.764
+@@file code_038.c 0.0 cached
+  code_029.c         24 MB       0s  (0s)
+@@progress 0.776
+@@file code_029.c 0.0 cached
+  code_021.c          4 MB       0s  (0s)
+@@progress 0.778
+@@file code_021.c 0.0 cached
+  code_032.c         24 MB       0s  (0s)
+@@progress 0.791
+@@file code_032.c 0.0 cached
+  code_005.c         20 MB       0s  (0s)
+@@progress 0.801
+@@file code_005.c 0.0 cached
+  code_002.c         15 MB       0s  (0s)
+@@progress 0.808
+@@file code_002.c 0.0 cached
+  code_003.c         19 MB       0s  (0s)
+@@progress 0.818
+@@file code_003.c 0.0 cached
+  code_021_3.c        3 MB       0s  (0s)
+@@progress 0.820
+@@file code_021_3.c 0.0 cached
+  code_020.c         17 MB       0s  (0s)
+@@progress 0.829
+@@file code_020.c 0.0 cached
+  code_020_1.c        6 MB       0s  (0s)
+@@progress 0.832
+@@file code_020_1.c 0.0 cached
+  code_013_1.c       16 MB       0s  (0s)
+@@progress 0.841
+@@file code_013_1.c 0.0 cached
+  code_018.c         11 MB       0s  (0s)
+@@progress 0.846
+@@file code_018.c 0.0 cached
+  code_021_4.c        3 MB       0s  (0s)
+@@progress 0.848
+@@file code_021_4.c 0.0 cached
+  code_001.c         15 MB       0s  (0s)
+@@progress 0.856
+@@file code_001.c 0.0 cached
+  code_017.c         15 MB       0s  (0s)
+@@progress 0.864
+@@file code_017.c 0.0 cached
+  code_017_2.c       13 MB       0s  (0s)
+@@progress 0.871
+@@file code_017_2.c 0.0 cached
+  code_017_1.c       13 MB       0s  (0s)
+@@progress 0.878
+@@file code_017_1.c 0.0 cached
+  code_006_2.c       14 MB       0s  (0s)
+@@progress 0.885
+@@file code_006_2.c 0.0 cached
+  code_006.c         14 MB       0s  (0s)
+@@progress 0.892
+@@file code_006.c 0.0 cached
+  code_006_1.c       14 MB       0s  (0s)
+@@progress 0.899
+@@file code_006_1.c 0.0 cached
+  code_018_1.c       11 MB       0s  (0s)
+@@progress 0.905
+@@file code_018_1.c 0.0 cached
+  code_022_1.c        4 MB       0s  (0s)
+@@progress 0.907
+@@file code_022_1.c 0.0 cached
+  code_021_2.c        2 MB       0s  (0s)
+@@progress 0.909
+@@file code_021_2.c 0.0 cached
+  a64_table.c        16 MB       0s  (0s)
+@@progress 0.909
+@@file a64_table.c 0.0 cached
+  code_000.c         12 MB       0s  (0s)
+@@progress 0.915
+@@file code_000.c 0.0 cached
+  code_023_2.c       12 MB       0s  (0s)
+@@progress 0.921
+@@file code_023_2.c 0.0 cached
+  code_054.c         10 MB       0s  (0s)
+@@progress 0.927
+@@file code_054.c 0.0 cached
+  a64_hooks.c         0 MB       0s  (0s)
+@@progress 0.927
+@@file a64_hooks.c 0.0 cached
+  a64_stubs.c         0 MB       0s  (0s)
+@@progress 0.927
+@@file a64_stubs.c 0.0 cached
+  a64_suyu.c          0 MB       0s  (0s)
+@@progress 0.927
+@@file a64_suyu.c 0.0 cached
+  a64_rt.c            0 MB       0s  (0s)
+@@progress 0.927
+@@file a64_rt.c 0.0 cached
+  nvn2_exports.c      0 MB       0s  (0s)
+@@progress 0.928
+@@file nvn2_exports.c 0.0 cached
+  hos_image.c         0 MB       0s  (0s)
+@@progress 0.928
+@@file hos_image.c 0.0 cached
+  discord_rpc.c       0 MB       0s  (0s)
+@@progress 0.928
+@@file discord_rpc.c 0.0 cached
+  display.c           0 MB       0s  (0s)
+@@progress 0.928
+@@file display.c 0.0 cached
+  hos_hostcall.c      0 MB       0s  (0s)
+@@progress 0.928
+@@file hos_hostcall.c 0.0 cached
+  hos_mem.c           0 MB       0s  (0s)
+@@progress 0.929
+@@file hos_mem.c 0.0 cached
+  hos_relaunch.c      0 MB       0s  (0s)
+@@progress 0.929
+@@file hos_relaunch.c 0.0 cached
+  hos_setjmp.c        0 MB       0s  (0s)
+@@progress 0.929
+@@file hos_setjmp.c 0.0 cached
+  hos_sdl.c           0 MB       0s  (0s)
+@@progress 0.929
+@@file hos_sdl.c 0.0 cached
+  hos_thread.c        0 MB       0s  (0s)
+@@progress 0.929
+@@file hos_thread.c 0.0 cached
+  hos_svc.c           0 MB       0s  (0s)
+@@progress 0.929
+@@file hos_svc.c 0.0 cached
+  hos_update.c        0 MB       0s  (0s)
+@@progress 0.930
+@@file hos_update.c 0.0 cached
+  mf_av1.c            0 MB       0s  (0s)
+@@progress 0.930
+@@file mf_av1.c 0.0 cached
+  mingw_msvc_shims.c    0 MB       0s  (0s)
+@@progress 0.930
+@@file mingw_msvc_shims.c 0.0 cached
+  mkw_glue.c          0 MB       0s  (0s)
+@@progress 0.930
+@@file mkw_glue.c 0.0 cached
+  mouse_native.c      0 MB       0s  (0s)
+@@progress 0.930
+@@file mouse_native.c 0.0 cached
+  msvc_oldnames.c     0 MB       0s  (0s)
+@@progress 0.931
+@@file msvc_oldnames.c 0.0 cached
+  nn_audio.c          0 MB       0s  (0s)
+@@progress 0.931
+@@file nn_audio.c 0.0 cached
+  nn_applet.c         0 MB       0s  (0s)
+@@progress 0.931
+@@file nn_applet.c 0.0 cached
+  nn_audio_in.c       0 MB       0s  (0s)
+@@progress 0.931
+@@file nn_audio_in.c 0.0 cached
+  nn_diag.c           0 MB       0s  (0s)
+@@progress 0.931
+@@file nn_diag.c 0.0 cached
+  nn_codec.c          0 MB       0s  (0s)
+@@progress 0.932
+@@file nn_codec.c 0.0 cached
+  nn_gs.c             0 MB       0s  (0s)
+@@progress 0.932
+@@file nn_gs.c 0.0 cached
+  nn_libc.c           0 MB       0s  (0s)
+@@progress 0.932
+@@file nn_libc.c 0.0 cached
+  nn_os_sync.c        0 MB       0s  (0s)
+@@progress 0.932
+@@file nn_os_sync.c 0.0 cached
+  nn_syncpt.c         0 MB       0s  (0s)
+@@progress 0.932
+@@file nn_syncpt.c 0.0 cached
+  nn_vi.c             0 MB       0s  (0s)
+@@progress 0.932
+@@file nn_vi.c 0.0 cached
+  nn_video.c          0 MB       0s  (0s)
+@@progress 0.933
+@@file nn_video.c 0.0 cached
+  nvn_layout.c        0 MB       0s  (0s)
+@@progress 0.933
+@@file nvn_layout.c 0.0 cached
+  nvdrv.c             0 MB       0s  (0s)
+@@progress 0.933
+@@file nvdrv.c 0.0 cached
+  nvn_native.c        0 MB       0s  (0s)
+@@progress 0.933
+@@file nvn_native.c 0.0 cached
+  oot_text_size.c     0 MB       0s  (0s)
+@@progress 0.933
+@@file oot_text_size.c 0.0 cached
+  pad_sdl.c           0 MB       0s  (0s)
+@@progress 0.934
+@@file pad_sdl.c 0.0 cached
+  rx_backend.c        0 MB       0s  (0s)
+@@progress 0.934
+@@file rx_backend.c 0.0 cached
+  rx_nowgpu.c         0 MB       0s  (0s)
+@@progress 0.934
+@@file rx_nowgpu.c 0.0 cached
+  bands.c             0 MB       0s  (0s)
+@@progress 0.934
+@@file bands.c 0.0 cached
+  celt.c              0 MB       0s  (0s)
+@@progress 0.934
+@@file celt.c 0.0 cached
+  celt_encoder.c      0 MB       0s  (0s)
+@@progress 0.935
+@@file celt_encoder.c 0.0 cached
+  celt_decoder.c      0 MB       0s  (0s)
+@@progress 0.935
+@@file celt_decoder.c 0.0 cached
+  cwrs.c              0 MB       0s  (0s)
+@@progress 0.935
+@@file cwrs.c 0.0 cached
+  entcode.c           0 MB       0s  (0s)
+@@progress 0.935
+@@file entcode.c 0.0 cached
+  entdec.c            0 MB       0s  (0s)
+@@progress 0.935
+@@file entdec.c 0.0 cached
+  entenc.c            0 MB       0s  (0s)
+@@progress 0.935
+@@file entenc.c 0.0 cached
+  kiss_fft.c          0 MB       0s  (0s)
+@@progress 0.936
+@@file kiss_fft.c 0.0 cached
+  laplace.c           0 MB       0s  (0s)
+@@progress 0.936
+@@file laplace.c 0.0 cached
+  mathops.c           0 MB       0s  (0s)
+@@progress 0.936
+@@file mathops.c 0.0 cached
+  mdct.c              0 MB       0s  (0s)
+@@progress 0.936
+@@file mdct.c 0.0 cached
+  modes.c             0 MB       0s  (0s)
+@@progress 0.936
+@@file modes.c 0.0 cached
+  pitch.c             0 MB       0s  (0s)
+@@progress 0.937
+@@file pitch.c 0.0 cached
+  celt_lpc.c          0 MB       0s  (0s)
+@@progress 0.937
+@@file celt_lpc.c 0.0 cached
+  quant_bands.c       0 MB       0s  (0s)
+@@progress 0.937
+@@file quant_bands.c 0.0 cached
+  rate.c              0 MB       0s  (0s)
+@@progress 0.937
+@@file rate.c 0.0 cached
+  vq.c                0 MB       0s  (0s)
+@@progress 0.937
+@@file vq.c 0.0 cached
+  CNG.c               0 MB       0s  (0s)
+@@progress 0.938
+@@file CNG.c 0.0 cached
+  code_signs.c        0 MB       0s  (0s)
+@@progress 0.938
+@@file code_signs.c 0.0 cached
+  init_decoder.c      0 MB       0s  (0s)
+@@progress 0.938
+@@file init_decoder.c 0.0 cached
+  decode_core.c       0 MB       0s  (0s)
+@@progress 0.938
+@@file decode_core.c 0.0 cached
+  decode_frame.c      0 MB       0s  (0s)
+@@progress 0.938
+@@file decode_frame.c 0.0 cached
+  decode_parameters.c    0 MB       0s  (0s)
+@@progress 0.938
+@@file decode_parameters.c 0.0 cached
+  decode_indices.c    0 MB       0s  (0s)
+@@progress 0.939
+@@file decode_indices.c 0.0 cached
+  decode_pulses.c     0 MB       0s  (0s)
+@@progress 0.939
+@@file decode_pulses.c 0.0 cached
+  decoder_set_fs.c    0 MB       0s  (0s)
+@@progress 0.939
+@@file decoder_set_fs.c 0.0 cached
+  dec_API.c           0 MB       0s  (0s)
+@@progress 0.939
+@@file dec_API.c 0.0 cached
+  enc_API.c           0 MB       0s  (0s)
+@@progress 0.939
+@@file enc_API.c 0.0 cached
+  encode_indices.c    0 MB       0s  (0s)
+@@progress 0.940
+@@file encode_indices.c 0.0 cached
+  encode_pulses.c     0 MB       0s  (0s)
+@@progress 0.940
+@@file encode_pulses.c 0.0 cached
+  gain_quant.c        0 MB       0s  (0s)
+@@progress 0.940
+@@file gain_quant.c 0.0 cached
+  interpolate.c       0 MB       0s  (0s)
+@@progress 0.940
+@@file interpolate.c 0.0 cached
+  LP_variable_cutoff.c    0 MB       0s  (0s)
+@@progress 0.940
+@@file LP_variable_cutoff.c 0.0 cached
+  NLSF_decode.c       0 MB       0s  (0s)
+@@progress 0.940
+@@file NLSF_decode.c 0.0 cached
+  NSQ.c               0 MB       0s  (0s)
+@@progress 0.941
+@@file NSQ.c 0.0 cached
+  NSQ_del_dec.c       0 MB       0s  (0s)
+@@progress 0.941
+@@file NSQ_del_dec.c 0.0 cached
+  PLC.c               0 MB       0s  (0s)
+@@progress 0.941
+@@file PLC.c 0.0 cached
+  shell_coder.c       0 MB       0s  (0s)
+@@progress 0.941
+@@file shell_coder.c 0.0 cached
+  tables_gain.c       0 MB       0s  (0s)
+@@progress 0.941
+@@file tables_gain.c 0.0 cached
+  tables_LTP.c        0 MB       0s  (0s)
+@@progress 0.942
+@@file tables_LTP.c 0.0 cached
+  tables_NLSF_CB_WB.c    0 MB       0s  (0s)
+@@progress 0.942
+@@file tables_NLSF_CB_WB.c 0.0 cached
+  tables_other.c      0 MB       0s  (0s)
+@@progress 0.942
+@@file tables_other.c 0.0 cached
+  tables_NLSF_CB_NB_MB.c    0 MB       0s  (0s)
+@@progress 0.942
+@@file tables_NLSF_CB_NB_MB.c 0.0 cached
+  tables_pulses_per_block.c    0 MB       0s  (0s)
+@@progress 0.942
+@@file tables_pulses_per_block.c 0.0 cached
+  tables_pitch_lag.c    0 MB       0s  (0s)
+@@progress 0.943
+@@file tables_pitch_lag.c 0.0 cached
+  VAD.c               0 MB       0s  (0s)
+@@progress 0.943
+@@file VAD.c 0.0 cached
+  control_audio_bandwidth.c    0 MB       0s  (0s)
+@@progress 0.943
+@@file control_audio_bandwidth.c 0.0 cached
+  quant_LTP_gains.c    0 MB       0s  (0s)
+@@progress 0.943
+@@file quant_LTP_gains.c 0.0 cached
+  VQ_WMat_EC.c        0 MB       0s  (0s)
+@@progress 0.943
+@@file VQ_WMat_EC.c 0.0 cached
+  HP_variable_cutoff.c    0 MB       0s  (0s)
+@@progress 0.944
+@@file HP_variable_cutoff.c 0.0 cached
+  NLSF_VQ.c           0 MB       0s  (0s)
+@@progress 0.944
+@@file NLSF_VQ.c 0.0 cached
+  NLSF_encode.c       0 MB       0s  (0s)
+@@progress 0.944
+@@file NLSF_encode.c 0.0 cached
+  NLSF_unpack.c       0 MB       0s  (0s)
+@@progress 0.944
+@@file NLSF_unpack.c 0.0 cached
+  NLSF_del_dec_quant.c    0 MB       0s  (0s)
+@@progress 0.944
+@@file NLSF_del_dec_quant.c 0.0 cached
+  process_NLSFs.c     0 MB       0s  (0s)
+@@progress 0.944
+@@file process_NLSFs.c 0.0 cached
+  stereo_LR_to_MS.c    0 MB       0s  (0s)
+@@progress 0.945
+@@file stereo_LR_to_MS.c 0.0 cached
+  stereo_MS_to_LR.c    0 MB       0s  (0s)
+@@progress 0.945
+@@file stereo_MS_to_LR.c 0.0 cached
+  check_control_input.c    0 MB       0s  (0s)
+@@progress 0.945
+@@file check_control_input.c 0.0 cached
+  control_SNR.c       0 MB       0s  (0s)
+@@progress 0.945
+@@file control_SNR.c 0.0 cached
+  init_encoder.c      0 MB       0s  (0s)
+@@progress 0.945
+@@file init_encoder.c 0.0 cached
+  A2NLSF.c            0 MB       0s  (0s)
+@@progress 0.946
+@@file A2NLSF.c 0.0 cached
+  control_codec.c     0 MB       0s  (0s)
+@@progress 0.946
+@@file control_codec.c 0.0 cached
+  biquad_alt.c        0 MB       0s  (0s)
+@@progress 0.946
+@@file biquad_alt.c 0.0 cached
+  ana_filt_bank_1.c    0 MB       0s  (0s)
+@@progress 0.946
+@@file ana_filt_bank_1.c 0.0 cached
+  bwexpander_32.c     0 MB       0s  (0s)
+@@progress 0.946
+@@file bwexpander_32.c 0.0 cached
+  bwexpander.c        0 MB       0s  (0s)
+@@progress 0.947
+@@file bwexpander.c 0.0 cached
+  debug.c             0 MB       0s  (0s)
+@@progress 0.947
+@@file debug.c 0.0 cached
+  decode_pitch.c      0 MB       0s  (0s)
+@@progress 0.947
+@@file decode_pitch.c 0.0 cached
+  inner_prod_aligned.c    0 MB       0s  (0s)
+@@progress 0.947
+@@file inner_prod_aligned.c 0.0 cached
+  lin2log.c           0 MB       0s  (0s)
+@@progress 0.947
+@@file lin2log.c 0.0 cached
+  log2lin.c           0 MB       0s  (0s)
+@@progress 0.947
+@@file log2lin.c 0.0 cached
+  LPC_analysis_filter.c    0 MB       0s  (0s)
+@@progress 0.948
+@@file LPC_analysis_filter.c 0.0 cached
+  LPC_inv_pred_gain.c    0 MB       0s  (0s)
+@@progress 0.948
+@@file LPC_inv_pred_gain.c 0.0 cached
+  table_LSF_cos.c     0 MB       0s  (0s)
+@@progress 0.948
+@@file table_LSF_cos.c 0.0 cached
+  NLSF2A.c            0 MB       0s  (0s)
+@@progress 0.948
+@@file NLSF2A.c 0.0 cached
+  NLSF_stabilize.c    0 MB       0s  (0s)
+@@progress 0.948
+@@file NLSF_stabilize.c 0.0 cached
+  NLSF_VQ_weights_laroia.c    0 MB       0s  (0s)
+@@progress 0.949
+@@file NLSF_VQ_weights_laroia.c 0.0 cached
+  pitch_est_tables.c    0 MB       0s  (0s)
+@@progress 0.949
+@@file pitch_est_tables.c 0.0 cached
+  resampler.c         0 MB       0s  (0s)
+@@progress 0.949
+@@file resampler.c 0.0 cached
+  resampler_down2_3.c    0 MB       0s  (0s)
+@@progress 0.949
+@@file resampler_down2_3.c 0.0 cached
+  resampler_down2.c    0 MB       0s  (0s)
+@@progress 0.949
+@@file resampler_down2.c 0.0 cached
+  resampler_private_AR2.c    0 MB       0s  (0s)
+@@progress 0.950
+@@file resampler_private_AR2.c 0.0 cached
+  resampler_private_down_FIR.c    0 MB       0s  (0s)
+@@progress 0.950
+@@file resampler_private_down_FIR.c 0.0 cached
+  resampler_private_IIR_FIR.c    0 MB       0s  (0s)
+@@progress 0.950
+@@file resampler_private_IIR_FIR.c 0.0 cached
+  resampler_private_up2_HQ.c    0 MB       0s  (0s)
+@@progress 0.950
+@@file resampler_private_up2_HQ.c 0.0 cached
+  resampler_rom.c     0 MB       0s  (0s)
+@@progress 0.950
+@@file resampler_rom.c 0.0 cached
+  sigm_Q15.c          0 MB       0s  (0s)
+@@progress 0.950
+@@file sigm_Q15.c 0.0 cached
+  sort.c              0 MB       0s  (0s)
+@@progress 0.951
+@@file sort.c 0.0 cached
+  sum_sqr_shift.c     0 MB       0s  (0s)
+@@progress 0.951
+@@file sum_sqr_shift.c 0.0 cached
+  stereo_decode_pred.c    0 MB       0s  (0s)
+@@progress 0.951
+@@file stereo_decode_pred.c 0.0 cached
+  stereo_encode_pred.c    0 MB       0s  (0s)
+@@progress 0.951
+@@file stereo_encode_pred.c 0.0 cached
+  stereo_quant_pred.c    0 MB       0s  (0s)
+@@progress 0.951
+@@file stereo_quant_pred.c 0.0 cached
+  stereo_find_predictor.c    0 MB       0s  (0s)
+@@progress 0.952
+@@file stereo_find_predictor.c 0.0 cached
+  LPC_fit.c           0 MB       0s  (0s)
+@@progress 0.952
+@@file LPC_fit.c 0.0 cached
+  apply_sine_window_FLP.c    0 MB       0s  (0s)
+@@progress 0.952
+@@file apply_sine_window_FLP.c 0.0 cached
+  corrMatrix_FLP.c    0 MB       0s  (0s)
+@@progress 0.952
+@@file corrMatrix_FLP.c 0.0 cached
+  encode_frame_FLP.c    0 MB       0s  (0s)
+@@progress 0.952
+@@file encode_frame_FLP.c 0.0 cached
+  find_LTP_FLP.c      0 MB       0s  (0s)
+@@progress 0.953
+@@file find_LTP_FLP.c 0.0 cached
+  find_LPC_FLP.c      0 MB       0s  (0s)
+@@progress 0.953
+@@file find_LPC_FLP.c 0.0 cached
+  find_pitch_lags_FLP.c    0 MB       0s  (0s)
+@@progress 0.953
+@@file find_pitch_lags_FLP.c 0.0 cached
+  find_pred_coefs_FLP.c    0 MB       0s  (0s)
+@@progress 0.953
+@@file find_pred_coefs_FLP.c 0.0 cached
+  LPC_analysis_filter_FLP.c    0 MB       0s  (0s)
+@@progress 0.953
+@@file LPC_analysis_filter_FLP.c 0.0 cached
+  LTP_analysis_filter_FLP.c    0 MB       0s  (0s)
+@@progress 0.953
+@@file LTP_analysis_filter_FLP.c 0.0 cached
+  LTP_scale_ctrl_FLP.c    0 MB       0s  (0s)
+@@progress 0.954
+@@file LTP_scale_ctrl_FLP.c 0.0 cached
+  noise_shape_analysis_FLP.c    0 MB       0s  (0s)
+@@progress 0.954
+@@file noise_shape_analysis_FLP.c 0.0 cached
+  process_gains_FLP.c    0 MB       0s  (0s)
+@@progress 0.954
+@@file process_gains_FLP.c 0.0 cached
+  regularize_correlations_FLP.c    0 MB       0s  (0s)
+@@progress 0.954
+@@file regularize_correlations_FLP.c 0.0 cached
+  residual_energy_FLP.c    0 MB       0s  (0s)
+@@progress 0.954
+@@file residual_energy_FLP.c 0.0 cached
+  warped_autocorrelation_FLP.c    0 MB       0s  (0s)
+@@progress 0.955
+@@file warped_autocorrelation_FLP.c 0.0 cached
+  wrappers_FLP.c      0 MB       0s  (0s)
+@@progress 0.955
+@@file wrappers_FLP.c 0.0 cached
+  burg_modified_FLP.c    0 MB       0s  (0s)
+@@progress 0.955
+@@file burg_modified_FLP.c 0.0 cached
+  autocorrelation_FLP.c    0 MB       0s  (0s)
+@@progress 0.955
+@@file autocorrelation_FLP.c 0.0 cached
+  bwexpander_FLP.c    0 MB       0s  (0s)
+@@progress 0.955
+@@file bwexpander_FLP.c 0.0 cached
+  energy_FLP.c        0 MB       0s  (0s)
+@@progress 0.956
+@@file energy_FLP.c 0.0 cached
+  inner_product_FLP.c    0 MB       0s  (0s)
+@@progress 0.956
+@@file inner_product_FLP.c 0.0 cached
+  k2a_FLP.c           0 MB       0s  (0s)
+@@progress 0.956
+@@file k2a_FLP.c 0.0 cached
+  LPC_inv_pred_gain_FLP.c    0 MB       0s  (0s)
+@@progress 0.956
+@@file LPC_inv_pred_gain_FLP.c 0.0 cached
+  pitch_analysis_core_FLP.c    0 MB       0s  (0s)
+@@progress 0.956
+@@file pitch_analysis_core_FLP.c 0.0 cached
+  scale_copy_vector_FLP.c    0 MB       0s  (0s)
+@@progress 0.956
+@@file scale_copy_vector_FLP.c 0.0 cached
+  scale_vector_FLP.c    0 MB       0s  (0s)
+@@progress 0.957
+@@file scale_vector_FLP.c 0.0 cached
+  schur_FLP.c         0 MB       0s  (0s)
+@@progress 0.957
+@@file schur_FLP.c 0.0 cached
+  sort_FLP.c          0 MB       0s  (0s)
+@@progress 0.957
+@@file sort_FLP.c 0.0 cached
+  opus.c              0 MB       0s  (0s)
+@@progress 0.957
+@@file opus.c 0.0 cached
+  opus_decoder.c      0 MB       0s  (0s)
+@@progress 0.957
+@@file opus_decoder.c 0.0 cached
+  opus_encoder.c      0 MB       0s  (0s)
+@@progress 0.958
+@@file opus_encoder.c 0.0 cached
+  extensions.c        0 MB       0s  (0s)
+@@progress 0.958
+@@file extensions.c 0.0 cached
+  opus_multistream.c    0 MB       0s  (0s)
+@@progress 0.958
+@@file opus_multistream.c 0.0 cached
+  opus_multistream_encoder.c    0 MB       0s  (0s)
+@@progress 0.958
+@@file opus_multistream_encoder.c 0.0 cached
+  opus_multistream_decoder.c    0 MB       0s  (0s)
+@@progress 0.958
+@@file opus_multistream_decoder.c 0.0 cached
+  repacketizer.c      0 MB       0s  (0s)
+@@progress 0.959
+@@file repacketizer.c 0.0 cached
+  opus_projection_encoder.c    0 MB       0s  (0s)
+@@progress 0.959
+@@file opus_projection_encoder.c 0.0 cached
+  opus_projection_decoder.c    0 MB       0s  (0s)
+@@progress 0.959
+@@file opus_projection_decoder.c 0.0 cached
+  mapping_matrix.c    0 MB       0s  (0s)
+@@progress 0.959
+@@file mapping_matrix.c 0.0 cached
+  analysis.c          0 MB       0s  (0s)
+@@progress 0.959
+@@file analysis.c 0.0 cached
+  mlp.c               0 MB       0s  (0s)
+@@progress 0.960
+@@file mlp.c 0.0 cached
+  mlp_data.c          0 MB       0s  (0s)
+@@progress 0.960
+@@file mlp_data.c 0.0 cached
+  imgui.cpp           0 MB       0s  (0s)
+@@progress 0.960
+@@file imgui.cpp 0.0 cached
+  imgui_draw.cpp      0 MB       0s  (0s)
+@@progress 0.960
+@@file imgui_draw.cpp 0.0 cached
+  imgui_tables.cpp    0 MB       0s  (0s)
+@@progress 0.960
+@@file imgui_tables.cpp 0.0 cached
+  imgui_widgets.cpp    0 MB       0s  (0s)
+@@progress 0.960
+@@file imgui_widgets.cpp 0.0 cached
+  imgui_impl_vulkan.cpp    0 MB       0s  (0s)
+@@progress 0.961
+@@file imgui_impl_vulkan.cpp 0.0 cached
+  debug.c             0 MB       0s  (0s)
+@@progress 0.961
+@@file debug.c 0.0 cached
+  entropy_common.c    0 MB       0s  (0s)
+@@progress 0.961
+@@file entropy_common.c 0.0 cached
+  fse_decompress.c    0 MB       0s  (0s)
+@@progress 0.961
+@@file fse_decompress.c 0.0 cached
+  error_private.c     0 MB       0s  (0s)
+@@progress 0.961
+@@file error_private.c 0.0 cached
+  xxhash.c            0 MB       0s  (0s)
+@@progress 0.962
+@@file xxhash.c 0.0 cached
+  zstd_common.c       0 MB       0s  (0s)
+@@progress 0.962
+@@file zstd_common.c 0.0 cached
+  huf_decompress.c    0 MB       0s  (0s)
+@@progress 0.962
+@@file huf_decompress.c 0.0 cached
+  zstd_ddict.c        0 MB       0s  (0s)
+@@progress 0.962
+@@file zstd_ddict.c 0.0 cached
+  zstd_decompress.c    0 MB       0s  (0s)
+@@progress 0.962
+@@file zstd_decompress.c 0.0 cached
+  ui_fonts.cpp        3 MB       0s  (0s)
+@@progress 0.963
+@@file ui_fonts.cpp 0.0 cached
+  zstd_decompress_block.c    0 MB       0s  (0s)
+@@progress 0.963
+@@file zstd_decompress_block.c 0.0 cached
+  emit_spirv.cpp      0 MB       0s  (0s)
+@@progress 0.963
+@@file emit_spirv.cpp 0.0 cached
+  emit_spirv_barriers.cpp    0 MB       0s  (0s)
+@@progress 0.963
+@@file emit_spirv_barriers.cpp 0.0 cached
+  emit_spirv_atomic.cpp    0 MB       0s  (0s)
+@@progress 0.963
+@@file emit_spirv_atomic.cpp 0.0 cached
+  emit_spirv_bitwise_conversion.cpp    0 MB       0s  (0s)
+@@progress 0.963
+@@file emit_spirv_bitwise_conversion.cpp 0.0 cached
+  emit_spirv_composite.cpp    0 MB       0s  (0s)
+@@progress 0.964
+@@file emit_spirv_composite.cpp 0.0 cached
+  emit_spirv_control_flow.cpp    0 MB       0s  (0s)
+@@progress 0.964
+@@file emit_spirv_control_flow.cpp 0.0 cached
+  emit_spirv_context_get_set.cpp    0 MB       0s  (0s)
+@@progress 0.964
+@@file emit_spirv_context_get_set.cpp 0.0 cached
+  emit_spirv_convert.cpp    0 MB       0s  (0s)
+@@progress 0.964
+@@file emit_spirv_convert.cpp 0.0 cached
+  emit_spirv_floating_point.cpp    0 MB       0s  (0s)
+@@progress 0.964
+@@file emit_spirv_floating_point.cpp 0.0 cached
+  emit_spirv_image.cpp    0 MB       0s  (0s)
+@@progress 0.965
+@@file emit_spirv_image.cpp 0.0 cached
+  emit_spirv_integer.cpp    0 MB       0s  (0s)
+@@progress 0.965
+@@file emit_spirv_integer.cpp 0.0 cached
+  emit_spirv_image_atomic.cpp    0 MB       0s  (0s)
+@@progress 0.965
+@@file emit_spirv_image_atomic.cpp 0.0 cached
+  emit_spirv_logical.cpp    0 MB       0s  (0s)
+@@progress 0.965
+@@file emit_spirv_logical.cpp 0.0 cached
+  emit_spirv_memory.cpp    0 MB       0s  (0s)
+@@progress 0.965
+@@file emit_spirv_memory.cpp 0.0 cached
+  emit_spirv_mesh.cpp    0 MB       0s  (0s)
+@@progress 0.966
+@@file emit_spirv_mesh.cpp 0.0 cached
+  emit_spirv_select.cpp    0 MB       0s  (0s)
+@@progress 0.966
+@@file emit_spirv_select.cpp 0.0 cached
+  emit_spirv_special.cpp    0 MB       0s  (0s)
+@@progress 0.966
+@@file emit_spirv_special.cpp 0.0 cached
+  emit_spirv_shared_memory.cpp    0 MB       0s  (0s)
+@@progress 0.966
+@@file emit_spirv_shared_memory.cpp 0.0 cached
+  emit_spirv_undefined.cpp    0 MB       0s  (0s)
+@@progress 0.966
+@@file emit_spirv_undefined.cpp 0.0 cached
+  emit_spirv_warp.cpp    0 MB       0s  (0s)
+@@progress 0.966
+@@file emit_spirv_warp.cpp 0.0 cached
+  spirv_emit_context.cpp    0 MB       0s  (0s)
+@@progress 0.967
+@@file spirv_emit_context.cpp 0.0 cached
+  basic_block.cpp     0 MB       0s  (0s)
+@@progress 0.967
+@@file basic_block.cpp 0.0 cached
+  condition.cpp       0 MB       0s  (0s)
+@@progress 0.967
+@@file condition.cpp 0.0 cached
+  ir_emitter.cpp      0 MB       0s  (0s)
+@@progress 0.967
+@@file ir_emitter.cpp 0.0 cached
+  opcodes.cpp         0 MB       0s  (0s)
+@@progress 0.967
+@@file opcodes.cpp 0.0 cached
+  microinstruction.cpp    0 MB       0s  (0s)
+@@progress 0.968
+@@file microinstruction.cpp 0.0 cached
+  patch.cpp           0 MB       0s  (0s)
+@@progress 0.968
+@@file patch.cpp 0.0 cached
+  post_order.cpp      0 MB       0s  (0s)
+@@progress 0.968
+@@file post_order.cpp 0.0 cached
+  program.cpp         0 MB       0s  (0s)
+@@progress 0.968
+@@file program.cpp 0.0 cached
+  type.cpp            0 MB       0s  (0s)
+@@progress 0.968
+@@file type.cpp 0.0 cached
+  value.cpp           0 MB       0s  (0s)
+@@progress 0.969
+@@file value.cpp 0.0 cached
+  control_flow.cpp    0 MB       0s  (0s)
+@@progress 0.969
+@@file control_flow.cpp 0.0 cached
+  decode.cpp          0 MB       0s  (0s)
+@@progress 0.969
+@@file decode.cpp 0.0 cached
+  indirect_branch_table_track.cpp    0 MB       0s  (0s)
+@@progress 0.969
+@@file indirect_branch_table_track.cpp 0.0 cached
+  opcodes.cpp         0 MB       0s  (0s)
+@@progress 0.969
+@@file opcodes.cpp 0.0 cached
+  structured_control_flow.cpp    0 MB       0s  (0s)
+@@progress 0.969
+@@file structured_control_flow.cpp 0.0 cached
+  atomic_operations_global_memory.cpp    0 MB       0s  (0s)
+@@progress 0.970
+@@file atomic_operations_global_memory.cpp 0.0 cached
+  atomic_operations_shared_memory.cpp    0 MB       0s  (0s)
+@@progress 0.970
+@@file atomic_operations_shared_memory.cpp 0.0 cached
+  attribute_memory_to_physical.cpp    0 MB       0s  (0s)
+@@progress 0.970
+@@file attribute_memory_to_physical.cpp 0.0 cached
+  barrier_operations.cpp    0 MB       0s  (0s)
+@@progress 0.970
+@@file barrier_operations.cpp 0.0 cached
+  bitfield_extract.cpp    0 MB       0s  (0s)
+@@progress 0.970
+@@file bitfield_extract.cpp 0.0 cached
+  bitfield_insert.cpp    0 MB       0s  (0s)
+@@progress 0.971
+@@file bitfield_insert.cpp 0.0 cached
+  branch_indirect.cpp    0 MB       0s  (0s)
+@@progress 0.971
+@@file branch_indirect.cpp 0.0 cached
+  common_funcs.cpp    0 MB       0s  (0s)
+@@progress 0.971
+@@file common_funcs.cpp 0.0 cached
+  condition_code_set.cpp    0 MB       0s  (0s)
+@@progress 0.971
+@@file condition_code_set.cpp 0.0 cached
+  double_add.cpp      0 MB       0s  (0s)
+@@progress 0.971
+@@file double_add.cpp 0.0 cached
+  double_compare_and_set.cpp    0 MB       0s  (0s)
+@@progress 0.972
+@@file double_compare_and_set.cpp 0.0 cached
+  double_fused_multiply_add.cpp    0 MB       0s  (0s)
+@@progress 0.972
+@@file double_fused_multiply_add.cpp 0.0 cached
+  double_min_max.cpp    0 MB       0s  (0s)
+@@progress 0.972
+@@file double_min_max.cpp 0.0 cached
+  double_multiply.cpp    0 MB       0s  (0s)
+@@progress 0.972
+@@file double_multiply.cpp 0.0 cached
+  double_set_predicate.cpp    0 MB       0s  (0s)
+@@progress 0.972
+@@file double_set_predicate.cpp 0.0 cached
+  find_leading_one.cpp    0 MB       0s  (0s)
+@@progress 0.972
+@@file find_leading_one.cpp 0.0 cached
+  exit_program.cpp    0 MB       0s  (0s)
+@@progress 0.973
+@@file exit_program.cpp 0.0 cached
+  floating_point_add.cpp    0 MB       0s  (0s)
+@@progress 0.973
+@@file floating_point_add.cpp 0.0 cached
+  floating_point_compare.cpp    0 MB       0s  (0s)
+@@progress 0.973
+@@file floating_point_compare.cpp 0.0 cached
+  floating_point_compare_and_set.cpp    0 MB       0s  (0s)
+@@progress 0.973
+@@file floating_point_compare_and_set.cpp 0.0 cached
+  floating_point_conversion_floating_point.cpp    0 MB       0s  (0s)
+@@progress 0.973
+@@file floating_point_conversion_floating_point.cpp 0.0 cached
+  floating_point_conversion_integer.cpp    0 MB       0s  (0s)
+@@progress 0.974
+@@file floating_point_conversion_integer.cpp 0.0 cached
+  floating_point_fused_multiply_add.cpp    0 MB       0s  (0s)
+@@progress 0.974
+@@file floating_point_fused_multiply_add.cpp 0.0 cached
+  floating_point_min_max.cpp    0 MB       0s  (0s)
+@@progress 0.974
+@@file floating_point_min_max.cpp 0.0 cached
+  floating_point_multi_function.cpp    0 MB       0s  (0s)
+@@progress 0.974
+@@file floating_point_multi_function.cpp 0.0 cached
+  floating_point_multiply.cpp    0 MB       0s  (0s)
+@@progress 0.974
+@@file floating_point_multiply.cpp 0.0 cached
+  floating_point_range_reduction.cpp    0 MB       0s  (0s)
+@@progress 0.975
+@@file floating_point_range_reduction.cpp 0.0 cached
+  floating_point_set_predicate.cpp    0 MB       0s  (0s)
+@@progress 0.975
+@@file floating_point_set_predicate.cpp 0.0 cached
+  floating_point_swizzled_add.cpp    0 MB       0s  (0s)
+@@progress 0.975
+@@file floating_point_swizzled_add.cpp 0.0 cached
+  half_floating_point_add.cpp    0 MB       0s  (0s)
+@@progress 0.975
+@@file half_floating_point_add.cpp 0.0 cached
+  half_floating_point_fused_multiply_add.cpp    0 MB       0s  (0s)
+@@progress 0.975
+@@file half_floating_point_fused_multiply_add.cpp 0.0 cached
+  half_floating_point_helper.cpp    0 MB       0s  (0s)
+@@progress 0.975
+@@file half_floating_point_helper.cpp 0.0 cached
+  half_floating_point_set.cpp    0 MB       0s  (0s)
+@@progress 0.976
+@@file half_floating_point_set.cpp 0.0 cached
+  half_floating_point_multiply.cpp    0 MB       0s  (0s)
+@@progress 0.976
+@@file half_floating_point_multiply.cpp 0.0 cached
+  impl.cpp            0 MB       0s  (0s)
+@@progress 0.976
+@@file impl.cpp 0.0 cached
+  half_floating_point_set_predicate.cpp    0 MB       0s  (0s)
+@@progress 0.976
+@@file half_floating_point_set_predicate.cpp 0.0 cached
+  integer_add.cpp     0 MB       0s  (0s)
+@@progress 0.976
+@@file integer_add.cpp 0.0 cached
+  integer_add_three_input.cpp    0 MB       0s  (0s)
+@@progress 0.977
+@@file integer_add_three_input.cpp 0.0 cached
+  integer_compare.cpp    0 MB       0s  (0s)
+@@progress 0.977
+@@file integer_compare.cpp 0.0 cached
+  integer_compare_and_set.cpp    0 MB       0s  (0s)
+@@progress 0.977
+@@file integer_compare_and_set.cpp 0.0 cached
+  integer_floating_point_conversion.cpp    0 MB       0s  (0s)
+@@progress 0.977
+@@file integer_floating_point_conversion.cpp 0.0 cached
+  integer_funnel_shift.cpp    0 MB       0s  (0s)
+@@progress 0.977
+@@file integer_funnel_shift.cpp 0.0 cached
+  integer_minimum_maximum.cpp    0 MB       0s  (0s)
+@@progress 0.978
+@@file integer_minimum_maximum.cpp 0.0 cached
+  integer_popcount.cpp    0 MB       0s  (0s)
+@@progress 0.978
+@@file integer_popcount.cpp 0.0 cached
+  integer_scaled_add.cpp    0 MB       0s  (0s)
+@@progress 0.978
+@@file integer_scaled_add.cpp 0.0 cached
+  integer_set_predicate.cpp    0 MB       0s  (0s)
+@@progress 0.978
+@@file integer_set_predicate.cpp 0.0 cached
+  integer_shift_left.cpp    0 MB       0s  (0s)
+@@progress 0.978
+@@file integer_shift_left.cpp 0.0 cached
+  integer_shift_right.cpp    0 MB       0s  (0s)
+@@progress 0.979
+@@file integer_shift_right.cpp 0.0 cached
+  integer_short_multiply_add.cpp    0 MB       0s  (0s)
+@@progress 0.979
+@@file integer_short_multiply_add.cpp 0.0 cached
+  integer_to_integer_conversion.cpp    0 MB       0s  (0s)
+@@progress 0.979
+@@file integer_to_integer_conversion.cpp 0.0 cached
+  internal_stage_buffer_entry_read.cpp    0 MB       0s  (0s)
+@@progress 0.979
+@@file internal_stage_buffer_entry_read.cpp 0.0 cached
+  load_constant.cpp    0 MB       0s  (0s)
+@@progress 0.979
+@@file load_constant.cpp 0.0 cached
+  load_effective_address.cpp    0 MB       0s  (0s)
+@@progress 0.979
+@@file load_effective_address.cpp 0.0 cached
+  load_store_attribute.cpp    0 MB       0s  (0s)
+@@progress 0.980
+@@file load_store_attribute.cpp 0.0 cached
+  load_store_local_shared.cpp    0 MB       0s  (0s)
+@@progress 0.980
+@@file load_store_local_shared.cpp 0.0 cached
+  load_store_memory.cpp    0 MB       0s  (0s)
+@@progress 0.980
+@@file load_store_memory.cpp 0.0 cached
+  logic_operation.cpp    0 MB       0s  (0s)
+@@progress 0.980
+@@file logic_operation.cpp 0.0 cached
+  logic_operation_three_input.cpp    0 MB       0s  (0s)
+@@progress 0.980
+@@file logic_operation_three_input.cpp 0.0 cached
+  matrix_multiply_nx2.cpp    0 MB       0s  (0s)
+@@progress 0.981
+@@file matrix_multiply_nx2.cpp 0.0 cached
+  move_predicate_to_register.cpp    0 MB       0s  (0s)
+@@progress 0.981
+@@file move_predicate_to_register.cpp 0.0 cached
+  move_register.cpp    0 MB       0s  (0s)
+@@progress 0.981
+@@file move_register.cpp 0.0 cached
+  move_special_register.cpp    0 MB       0s  (0s)
+@@progress 0.981
+@@file move_special_register.cpp 0.0 cached
+  move_register_to_predicate.cpp    0 MB       0s  (0s)
+@@progress 0.981
+@@file move_register_to_predicate.cpp 0.0 cached
+  not_implemented.cpp    0 MB       0s  (0s)
+@@progress 0.982
+@@file not_implemented.cpp 0.0 cached
+  output_geometry.cpp    0 MB       0s  (0s)
+@@progress 0.982
+@@file output_geometry.cpp 0.0 cached
+  pixel_load.cpp      0 MB       0s  (0s)
+@@progress 0.982
+@@file pixel_load.cpp 0.0 cached
+  predicate_set_predicate.cpp    0 MB       0s  (0s)
+@@progress 0.982
+@@file predicate_set_predicate.cpp 0.0 cached
+  predicate_set_register.cpp    0 MB       0s  (0s)
+@@progress 0.982
+@@file predicate_set_register.cpp 0.0 cached
+  register_map_nx2.cpp    0 MB       0s  (0s)
+@@progress 0.982
+@@file register_map_nx2.cpp 0.0 cached
+  select_source_with_predicate.cpp    0 MB       0s  (0s)
+@@progress 0.983
+@@file select_source_with_predicate.cpp 0.0 cached
+  surface_atomic_operations.cpp    0 MB       0s  (0s)
+@@progress 0.983
+@@file surface_atomic_operations.cpp 0.0 cached
+  surface_load_store.cpp    0 MB       0s  (0s)
+@@progress 0.983
+@@file surface_load_store.cpp 0.0 cached
+  texture_fetch.cpp    0 MB       0s  (0s)
+@@progress 0.983
+@@file texture_fetch.cpp 0.0 cached
+  texture_fetch_swizzled.cpp    0 MB       0s  (0s)
+@@progress 0.983
+@@file texture_fetch_swizzled.cpp 0.0 cached
+  texture_gather.cpp    0 MB       0s  (0s)
+@@progress 0.984
+@@file texture_gather.cpp 0.0 cached
+  texture_gather_swizzled.cpp    0 MB       0s  (0s)
+@@progress 0.984
+@@file texture_gather_swizzled.cpp 0.0 cached
+  texture_gradient.cpp    0 MB       0s  (0s)
+@@progress 0.984
+@@file texture_gradient.cpp 0.0 cached
+  texture_load_swizzled.cpp    0 MB       0s  (0s)
+@@progress 0.984
+@@file texture_load_swizzled.cpp 0.0 cached
+  texture_load.cpp    0 MB       0s  (0s)
+@@progress 0.984
+@@file texture_load.cpp 0.0 cached
+  texture_mipmap_level.cpp    0 MB       0s  (0s)
+@@progress 0.985
+@@file texture_mipmap_level.cpp 0.0 cached
+  texture_query.cpp    0 MB       0s  (0s)
+@@progress 0.985
+@@file texture_query.cpp 0.0 cached
+  video_helper.cpp    0 MB       0s  (0s)
+@@progress 0.985
+@@file video_helper.cpp 0.0 cached
+  video_minimum_maximum.cpp    0 MB       0s  (0s)
+@@progress 0.985
+@@file video_minimum_maximum.cpp 0.0 cached
+  video_multiply_add.cpp    0 MB       0s  (0s)
+@@progress 0.985
+@@file video_multiply_add.cpp 0.0 cached
+  video_set_predicate.cpp    0 MB       0s  (0s)
+@@progress 0.985
+@@file video_set_predicate.cpp 0.0 cached
+  vote.cpp            0 MB       0s  (0s)
+@@progress 0.986
+@@file vote.cpp 0.0 cached
+  warp_shuffle.cpp    0 MB       0s  (0s)
+@@progress 0.986
+@@file warp_shuffle.cpp 0.0 cached
+  translate.cpp       0 MB       0s  (0s)
+@@progress 0.986
+@@file translate.cpp 0.0 cached
+  translate_program.cpp    0 MB       0s  (0s)
+@@progress 0.986
+@@file translate_program.cpp 0.0 cached
+  collect_shader_info_pass.cpp    0 MB       0s  (0s)
+@@progress 0.986
+@@file collect_shader_info_pass.cpp 0.0 cached
+  conditional_barrier_pass.cpp    0 MB       0s  (0s)
+@@progress 0.987
+@@file conditional_barrier_pass.cpp 0.0 cached
+  constant_propagation_pass.cpp    0 MB       0s  (0s)
+@@progress 0.987
+@@file constant_propagation_pass.cpp 0.0 cached
+  dead_code_elimination_pass.cpp    0 MB       0s  (0s)
+@@progress 0.987
+@@file dead_code_elimination_pass.cpp 0.0 cached
+  dual_vertex_pass.cpp    0 MB       0s  (0s)
+@@progress 0.987
+@@file dual_vertex_pass.cpp 0.0 cached
+  geometry_compaction_pass.cpp    0 MB       0s  (0s)
+@@progress 0.987
+@@file geometry_compaction_pass.cpp 0.0 cached
+  global_memory_to_storage_buffer_pass.cpp    0 MB       0s  (0s)
+@@progress 0.988
+@@file global_memory_to_storage_buffer_pass.cpp 0.0 cached
+  identity_removal_pass.cpp    0 MB       0s  (0s)
+@@progress 0.988
+@@file identity_removal_pass.cpp 0.0 cached
+  layer_pass.cpp      0 MB       0s  (0s)
+@@progress 0.988
+@@file layer_pass.cpp 0.0 cached
+  lower_fp16_to_fp32.cpp    0 MB       0s  (0s)
+@@progress 0.988
+@@file lower_fp16_to_fp32.cpp 0.0 cached
+  lower_fp64_to_fp32.cpp    0 MB       0s  (0s)
+@@progress 0.988
+@@file lower_fp64_to_fp32.cpp 0.0 cached
+  lower_int64_to_int32.cpp    0 MB       0s  (0s)
+@@progress 0.988
+@@file lower_int64_to_int32.cpp 0.0 cached
+  position_pass.cpp    0 MB       0s  (0s)
+@@progress 0.989
+@@file position_pass.cpp 0.0 cached
+  rescaling_pass.cpp    0 MB       0s  (0s)
+@@progress 0.989
+@@file rescaling_pass.cpp 0.0 cached
+  ssa_rewrite_pass.cpp    0 MB       0s  (0s)
+@@progress 0.989
+@@file ssa_rewrite_pass.cpp 0.0 cached
+  texture_pass.cpp    0 MB       0s  (0s)
+@@progress 0.989
+@@file texture_pass.cpp 0.0 cached
+  vendor_workaround_pass.cpp    0 MB       0s  (0s)
+@@progress 0.989
+@@file vendor_workaround_pass.cpp 0.0 cached
+  verification_pass.cpp    0 MB       0s  (0s)
+@@progress 0.990
+@@file verification_pass.cpp 0.0 cached
+  annotation.cpp      0 MB       0s  (0s)
+@@progress 0.990
+@@file annotation.cpp 0.0 cached
+  atomic.cpp          0 MB       0s  (0s)
+@@progress 0.990
+@@file atomic.cpp 0.0 cached
+  arithmetic.cpp      0 MB       0s  (0s)
+@@progress 0.990
+@@file arithmetic.cpp 0.0 cached
+  barrier.cpp         0 MB       0s  (0s)
+@@progress 0.990
+@@file barrier.cpp 0.0 cached
+  bit.cpp             0 MB       0s  (0s)
+@@progress 0.991
+@@file bit.cpp 0.0 cached
+  constant.cpp        0 MB       0s  (0s)
+@@progress 0.991
+@@file constant.cpp 0.0 cached
+  conversion.cpp      0 MB       0s  (0s)
+@@progress 0.991
+@@file conversion.cpp 0.0 cached
+  debug.cpp           0 MB       0s  (0s)
+@@progress 0.991
+@@file debug.cpp 0.0 cached
+  derivatives.cpp     0 MB       0s  (0s)
+@@progress 0.991
+@@file derivatives.cpp 0.0 cached
+  extension.cpp       0 MB       0s  (0s)
+@@progress 0.991
+@@file extension.cpp 0.0 cached
+  flow.cpp            0 MB       0s  (0s)
+@@progress 0.992
+@@file flow.cpp 0.0 cached
+  function.cpp        0 MB       0s  (0s)
+@@progress 0.992
+@@file function.cpp 0.0 cached
+  group.cpp           0 MB       0s  (0s)
+@@progress 0.992
+@@file group.cpp 0.0 cached
+  image.cpp           0 MB       0s  (0s)
+@@progress 0.992
+@@file image.cpp 0.0 cached
+  logical.cpp         0 MB       0s  (0s)
+@@progress 0.992
+@@file logical.cpp 0.0 cached
+  memory.cpp          0 MB       0s  (0s)
+@@progress 0.993
+@@file memory.cpp 0.0 cached
+  misc.cpp            0 MB       0s  (0s)
+@@progress 0.993
+@@file misc.cpp 0.0 cached
+  type.cpp            0 MB       0s  (0s)
+@@progress 0.993
+@@file type.cpp 0.0 cached
+  stream.cpp          0 MB       0s  (0s)
+@@progress 0.993
+@@file stream.cpp 0.0 cached
+  sirit.cpp           0 MB       0s  (0s)
+@@progress 0.993
+@@file sirit.cpp 0.0 cached
+  mods.c              0 MB       2s  (2s)
+@@progress 0.994
+@@file mods.c 2.1 new
+@@eta 30
+  nn_fs.c             0 MB       2s  (2s)
+@@progress 0.994
+@@file nn_fs.c 2.2 new
+@@eta 30
+  nn_hid.c            0 MB       2s  (2s)
+@@progress 0.994
+@@file nn_hid.c 2.3 new
+@@eta 30
+  oot_menu.c          0 MB       2s  (2s)
+@@progress 0.994
+@@file oot_menu.c 2.3 new
+@@eta 29
+  prompts.c           0 MB       2s  (2s)
+@@progress 0.994
+@@file prompts.c 2.2 new
+@@eta 29
+  hos_main.c          0 MB       2s  (2s)
+@@progress 0.995
+@@file hos_main.c 2.3 new
+@@eta 29
+  decoders.cpp        0 MB       3s  (3s)
+@@progress 0.995
+@@file decoders.cpp 3.0 new
+@@eta 29
+  vk_antilag.cpp      0 MB       3s  (4s)
+@@progress 0.995
+@@file vk_antilag.cpp 3.5 new
+@@eta 28
+  vk_bank.cpp         0 MB       4s  (4s)
+@@progress 0.995
+@@file vk_bank.cpp 4.0 new
+@@eta 28
+  vk_formats.cpp      0 MB       2s  (5s)
+@@progress 0.995
+@@file vk_formats.cpp 2.2 new
+@@eta 27
+  vk_dlss.cpp         0 MB       4s  (5s)
+@@progress 0.995
+@@file vk_dlss.cpp 4.4 new
+@@eta 27
+  vk_coopmat.cpp      0 MB       4s  (5s)
+@@progress 0.996
+@@file vk_coopmat.cpp 4.4 new
+@@eta 26
+  astc.cpp            0 MB       5s  (5s)
+@@progress 0.996
+@@file astc.cpp 4.6 new
+@@eta 26
+  vk_dump.cpp         0 MB       5s  (7s)
+@@progress 0.996
+@@file vk_dump.cpp 4.6 new
+@@eta 25
+  vk_hangdump.cpp     0 MB       2s  (7s)
+@@progress 0.996
+@@file vk_hangdump.cpp 2.4 new
+@@eta 24
+  vk_fsr3_inputs.cpp    0 MB       4s  (8s)
+@@progress 0.996
+@@file vk_fsr3_inputs.cpp 4.2 new
+@@eta 24
+  vk_fsr3.cpp         0 MB       5s  (8s)
+@@progress 0.997
+@@file vk_fsr3.cpp 5.1 new
+@@eta 23
+  vk_fsr4.cpp         0 MB       4s  (9s)
+@@progress 0.997
+@@file vk_fsr4.cpp 3.8 new
+@@eta 22
+  vk_framegen.cpp     0 MB       5s  (9s)
+@@progress 0.997
+@@file vk_framegen.cpp 4.6 new
+@@eta 22
+  vk_gprof.cpp        0 MB       4s  (9s)
+@@progress 0.997
+@@file vk_gprof.cpp 4.4 new
+@@eta 22
+  vk_fsr3fi.cpp       0 MB       5s  (10s)
+@@progress 0.997
+@@file vk_fsr3fi.cpp 5.0 new
+@@eta 22
+  vk_jobs.cpp         0 MB       3s  (11s)
+@@progress 0.998
+@@file vk_jobs.cpp 3.4 new
+@@eta 22
+  vk_imgui.cpp        0 MB       4s  (11s)
+@@progress 0.998
+@@file vk_imgui.cpp 3.8 new
+@@eta 22
+  vk_reflex.cpp       0 MB       3s  (13s)
+@@progress 0.998
+@@file vk_reflex.cpp 3.3 new
+@@eta 22
+  vk_main.cpp         0 MB       5s  (13s)
+@@progress 0.998
+@@file vk_main.cpp 4.7 new
+@@eta 22
+  vk_predict.cpp      0 MB       5s  (14s)
+@@progress 0.998
+@@file vk_predict.cpp 5.2 new
+@@eta 22
+  vk_temporal.cpp     0 MB       5s  (16s)
+@@progress 0.998
+@@file vk_temporal.cpp 5.5 new
+@@eta 22
+  vk_xfer.cpp         0 MB       4s  (17s)
+@@progress 0.999
+@@file vk_xfer.cpp 4.0 new
+@@eta 22
+  vk_vma.cpp          0 MB       6s  (18s)
+@@progress 0.999
+@@file vk_vma.cpp 5.6 new
+@@eta 22
+  vk_menu.cpp         0 MB      10s  (19s)
+@@progress 0.999
+@@file vk_menu.cpp 9.8 new
+@@eta 22
+  vk_replay.cpp       0 MB      10s  (20s)
+@@progress 0.999
+@@file vk_replay.cpp 10.1 new
+@@eta 22
+  vk_memory.cpp       0 MB      14s  (23s)
+@@progress 0.999
+@@file vk_memory.cpp 14.1 new
+@@eta 22
+  vk_texture.cpp      0 MB      11s  (25s)
+@@progress 1.000
+@@file vk_texture.cpp 10.7 new
+@@eta 22
+  vk_draw.cpp         0 MB      23s  (25s)
+@@progress 1.000
+@@file vk_draw.cpp 22.9 new
+@@eta 14
+  vk_shader.cpp       0 MB      15s  (26s)
+@@progress 1.000
+@@file vk_shader.cpp 14.9 new
+@@eta 0
+compiled in 26s, 0 failed
+linked C:\Users\Matheus\AppData\Local\HookshotBuilder\sa\build\hookshot.exe: 440 MB (8s)
+linked C:\Users\Matheus\AppData\Local\HookshotBuilder\sa\build\hookshot_vk.dll: 10 MB (1s)
+@@stage finish Putting the game folder together
+ApplicationPackage.Nin_Ounce_NVN2.release.sarc.zs                  1650 programs
+ExternalBinaryString.bfres.zs                                         0 programs
+Foliage.Product.110.product.Nin_Ounce_NVN2.bfsha.zs                  53 programs
+Model.Product.110.product.Nin_Ounce_NVN2.bfsha.zs                 13733 programs
+SceneMaterial.Product.110.product.Nin_Ounce_NVN2.bfsha.zs             1 programs
+TerrainGround.Product.110.product.Nin_Ounce_NVN2.bfsha.zs            67 programs
+MergeShader.Product.100.Nin_Ounce_NVN2.bfsha.zs                     113 programs
+tera_resource.Nin_Ounce_NVN2.release.sarc.zs                        288 programs
+agl_resource.Nin_Ounce_NVN2.release.sarc.zs                        5248 programs
+gsys_resource.Nin_Ounce_NVN2.release.sarc.zs                         49 programs
+Ndve-Nvn2-vid_seq5.dat.zs                                            22 programs
+Player.wbr.zs                                                         0 programs
+Effect (1433 particle sets)                                       17585 programs
+7 s
+38809 programs from 42856 stages
+by stages: [((0, 1), 33369), ((5,), 4128), ((1, 6, 7), 1180), ((1, 7), 132)]
+slots: [('slot 40, stage 1', 51785), ('slot 48, stage 5', 23162), ('slot 64, stage 6', 1825), ('slot 72, stage 7', 2015), ('slot 8, stage 0', 49770)]
+wrote D:\hookshot\hookshot_shaders.bin 514 MB
+prompts: switch
+prompts: xbox
+prompts: ps4

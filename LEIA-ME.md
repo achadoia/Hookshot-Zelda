@@ -11,7 +11,7 @@ guarda as mudanças nesses arquivos e recompila a pasta do jogo com elas.
     python aplicar.py --escolher   pede o hookshot.exe numa janela
     python aplicar.py --restaurar  volta os arquivos originais do builder e recompila
 
-- Acha sozinho o builder (`%LOCALAPPDATA%\HookshotBuilderersions\current.txt`) e o jogo (`builder-settings.json` "Out").
+- Acha sozinho o builder (`%LOCALAPPDATA%\HookshotBuilder\versions\current.txt`) e o jogo (`builder-settings.json` "Out").
 - `originais\` = os arquivos do builder na versão em que as mudanças foram feitas (`originais\VERSAO.txt`); `fonte\` = os nossos.
 - **Versão nova do Hookshot**: junta em 3 vias (`git merge-file`: o arquivo novo, a base antiga, o nosso). Juntou limpo: aplica,
   recompila e passa a usar a versão nova como base (atualiza `originais\` e `fonte\`; é só fazer o commit). Conflito (a versão
