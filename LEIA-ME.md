@@ -24,6 +24,7 @@ guarda as mudanças nesses arquivos e recompila a pasta do jogo com elas.
 | Menu Insert > Controls | Linha nova **"Mapa do Zelda: botão"**: Nenhum, L3, R3... (salva como `zelda_mapa_pad`). |
 | Tela de título | Selo no canto inferior esquerdo: modo atual (NORMAL / RANDOMIZER + seed) e a tecla. |
 | Randomizer | Embaralha os 98 baús de item (E:\OoT-Notas\randomizer). Só **novo jogo**, saves separados. |
+| Cutscenes (randomizer) | A seed tira a trava `SkipSetting/DisableSkip` da abertura (Dm_Kokiri_0000) e dos créditos: com isso todas as cutscenes aceitam o pular do jogo. (As outras nunca tiveram trava; o fundo do título fica como está.) |
 
 ### Mapa (página 6)
 L/R (Q/E, roda do mouse): área · Esquerda/Direita: item · Cima/Baixo: filtro por categoria · A/Enter: criança/adulto ·
