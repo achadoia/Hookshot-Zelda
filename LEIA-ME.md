@@ -7,13 +7,15 @@ guarda as mudanças nesses arquivos e recompila a pasta do jogo com elas.
 
 ## Como aplicar
 
-    python aplicar.py              # copia fonte\ para o builder e recompila D:\hookshot (make_game.py --update)
-    python aplicar.py --restaurar  # volta os arquivos originais do builder e recompila
+    Aplicar-Zelda.bat              (dois cliques) = python aplicar.py
+    python aplicar.py --escolher   pede o hookshot.exe numa janela
+    python aplicar.py --restaurar  volta os arquivos originais do builder e recompila
 
-- `originais\` = os arquivos do builder **v2.1.0** como vieram; `fonte\` = os nossos. `git diff --no-index originais fonte`
-  mostra tudo o que mudou.
-- Se o builder for atualizado, `aplicar.py` para quando um arquivo dele não bate mais com `originais\`: refazer as mudanças
-  sobre a versão nova.
+- Acha sozinho o builder (`%LOCALAPPDATA%\HookshotBuilderersions\current.txt`) e o jogo (`builder-settings.json` "Out").
+- `originais\` = os arquivos do builder na versão em que as mudanças foram feitas (`originais\VERSAO.txt`); `fonte\` = os nossos.
+- **Versão nova do Hookshot**: junta em 3 vias (`git merge-file`: o arquivo novo, a base antiga, o nosso). Juntou limpo: aplica,
+  recompila e passa a usar a versão nova como base (atualiza `originais\` e `fonte\`; é só fazer o commit). Conflito (a versão
+  nova mudou a mesma linha que nós): para sem tocar no builder e deixa o arquivo com as marcas em `conflitos\`.
 - O exe e a dll de antes ficam em `D:\hookshot\_backup-antes-zelda\`.
 
 ## O que muda no jogo
