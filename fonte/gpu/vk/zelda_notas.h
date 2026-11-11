@@ -564,12 +564,15 @@ std::string gen_error;
 std::mutex gen_mu;
 
 bool busy() { return gen_state.load() == 1 || gen_state.load() == 2; }
+std::string lista_marcadas();   // (abaixo: o que embaralhar)
+void ler_marcadas();
 void open_mode() {
     load();
     seed = read_line(dir + "\\randomizer\\seed.txt");
     rando_save = any_save(gdir + "\\user\\save_randomizer");
     mode_sel = rando ? (seed.empty() ? 1 : 2) : 0;
     if (gen_state.load() == 3) gen_state = 0;
+    ler_marcadas();
 }
 bool write_mode(const char* m) {
     CreateDirectoryA(dir.c_str(), nullptr);
@@ -616,7 +619,7 @@ void generate() {
         const std::string novo = dir + "\\randomizer.novo", log = dir + "\\gerar.log";
         std::error_code ec;
         std::filesystem::remove_all(novo, ec);
-        std::string cmd = "\"" + py + "\" -X utf8 \"" + script + "\" --saida \"" + novo + "\"";
+        std::string cmd = "\"" + py + "\" -X utf8 \"" + script + "\" --saida \"" + novo + "\" --embaralhar " + lista_marcadas();
         SECURITY_ATTRIBUTES sa{sizeof sa, nullptr, TRUE};
         HANDLE out = CreateFileA(log.c_str(), GENERIC_WRITE, FILE_SHARE_READ, &sa, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
         STARTUPINFOA si{};
@@ -671,12 +674,66 @@ void generate() {
     }).detach();
 }
 
-const char* mode_labels[3] = {"Normal", "Randomizer: novo jogo", "Randomizer: continuar"};
+// ---- o que embaralhar (como as opcoes do Ship of Harkinian): caixas de selecao, cada uma com a explicacao. As prontas vao
+// para o gerador (--embaralhar); as "em breve" dependem de trocar o item na hora da entrega, no runtime (ainda nao feito) ----
+struct Opcao {
+    const char* id;      // (o nome no gerador; vazio = ainda nao existe)
+    const char* nome;
+    const char* explica;
+};
+const Opcao opcoes[] = {
+    {"masmorras", "Baús das masmorras",
+     "Os 56 baús de dentro das masmorras, da Árvore Deku ao Castelo de Ganon. Chaves, mapas e bússolas ficam no lugar, para "
+     "nenhuma porta travar o jogo."},
+    {"mundo", "Baús do mundo",
+     "Os 42 baús fora das masmorras: Floresta Kokiri, Campo de Hyrule, grutas, vilas, Fortaleza Gerudo, Colosso..."},
+    {"", "Lojas e vendedores (em breve)",
+     "Os itens à venda nas lojas, nos Deku vendedores e nos mercadores. Ainda não disponível: o jogo entrega esses itens por "
+     "um evento, e trocar o item precisa ser feito na hora da entrega, dentro do jogo."},
+    {"", "Itens de NPCs e quests (em breve)",
+     "O que os personagens entregam: o alvo da Floresta Perdida, o Goron da bolsa de bombas, as Grandes Fadas, minigames, "
+     "Biggoron... Ainda não disponível (a mesma troca na hora da entrega)."},
+    {"", "Músicas da ocarina (em breve)",
+     "As músicas e os lugares onde se aprendem: quem ensinava a Canção de Saria pode ensinar outra. Ainda não disponível "
+     "(a mesma troca na hora da entrega)."},
+};
+constexpr int kModes = 3, kOpcoes = (int)(sizeof opcoes / sizeof opcoes[0]), kRows = kModes + kOpcoes;
+bool marcada[kOpcoes] = {true, true, false, false, false};
+std::string embaralhar_seed;   // (o que a seed atual embaralhou: randomizer\embaralhar.txt)
+
+bool na_lista(const std::string& lista, const char* id) {
+    return *id && ("," + lista + ",").find(std::string(",") + id + ",") != std::string::npos;
+}
+void ler_marcadas() {   // (a ultima escolha: zelda\embaralhar.txt; a da seed atual: randomizer\embaralhar.txt)
+    embaralhar_seed = read_line(dir + "\\randomizer\\embaralhar.txt");
+    if (embaralhar_seed.empty() && !seed.empty()) embaralhar_seed = "masmorras,mundo";   // (as seeds de antes da escolha)
+    const std::string v = read_line(dir + "\\embaralhar.txt");
+    if (v.empty()) return;
+    for (int i = 0; i < kOpcoes; i++) marcada[i] = na_lista(v, opcoes[i].id);
+}
+std::string lista_marcadas() {
+    std::string v;
+    for (int i = 0; i < kOpcoes; i++)
+        if (marcada[i] && *opcoes[i].id) v += (v.empty() ? "" : ",") + std::string(opcoes[i].id);
+    return v;
+}
+void gravar_marcadas() {
+    if (FILE* f = fopen((dir + "\\embaralhar.txt").c_str(), "wb")) fprintf(f, "%s\n", lista_marcadas().c_str()), fclose(f);
+}
+std::string nomes_de(const std::string& lista) {   // ("masmorras,mundo" -> "baús das masmorras + baús do mundo")
+    std::string out;
+    for (const Opcao& o : opcoes)
+        if (na_lista(lista, o.id)) out += (out.empty() ? "" : " + ") + std::string(o.nome);
+    return out;
+}
+
+const char* mode_labels[kModes] = {"Normal", "Randomizer: novo jogo", "Randomizer: continuar"};
 bool mode_enabled(int i) { return i != 2 || (!seed.empty() && exists(dir + "\\randomizer\\romfs")); }
+std::string aviso;   // (uma mensagem curta: "marque pelo menos um")
 
 void draw_mode(ui::Ctx& c) {
-    const float s = c.s, W = 640 * s, H = 420 * s;
-    const ImVec2 p((c.w - W) * 0.5f, (c.h - H) * 0.5f), q = p + ImVec2(W, H);
+    const float s = c.s, W = 760 * s, H = 720 * s;
+    const ImVec2 p((c.w - W) * 0.5f, std::max(c.safe, (c.h - H) * 0.5f)), q = p + ImVec2(W, H);
     ui::shadow(c, p, q, 30 * s, 1.0f, 8 * s);
     c.d->AddRectFilled(p, q, ui::rgba(36, 28, 19, 250));
     c.d->AddRect(p, q, ui::rgba(122, 98, 64, 230), 0, 2 * s);
@@ -684,18 +741,16 @@ void draw_mode(ui::Ctx& c) {
     c.d->AddRectFilledMultiColor(p, ImVec2(q.x, p.y + hb), ui::kBannerTop, ui::kBannerTop, ui::kBanner, ui::kBanner);
     c.d->AddRectFilled(ImVec2(p.x, p.y + hb - 3 * s), ImVec2(q.x, p.y + hb), ui::kBannerEdge);
     ui::text_mid_centre(c, c.f.heading, 23 * s, (p.x + q.x) * 0.5f, p.y + hb * 0.5f, ui::kBannerInk, "Modo de jogo");
-    char now[160];
+    char now[200];
     snprintf(now, sizeof now, "Agora: %s%s%s", rando ? "RANDOMIZER" : "NORMAL", rando && !seed.empty() ? " · seed " : "",
              rando ? seed.c_str() : "");
-    ui::text_mid(c, c.f.strong, 17 * s, p.x + 28 * s, p.y + hb + 24 * s, ui::kGoldHi, now);
-    const float tw = W - 56 * s;
-    ui::para(c, c.f.body, 16.5f * s, ImVec2(p.x + 28 * s, p.y + hb + 46 * s), ui::kInk,
-             "O Randomizer embaralha os 98 baús de itens do jogo (chaves, mapas e bússolas ficam no lugar). Ele só vale para um "
-             "NOVO JOGO, com saves separados: a sua campanha normal fica guardada e intocada. Trocar de modo reinicia o jogo.",
-             tw);
-    const float bw = W - 120 * s, bh = 44 * s, x0 = p.x + 60 * s;
-    float by = p.y + hb + 152 * s;
-    for (int i = 0; i < 3; i++) {
+    ui::text_mid(c, c.f.strong, 17 * s, p.x + 28 * s, p.y + hb + 22 * s, ui::kGoldHi, now);
+    if (rando && !embaralhar_seed.empty())
+        ui::text_mid(c, c.f.body, 14.5f * s, p.x + 28 * s, p.y + hb + 44 * s, ui::kSoft,
+                     ("Embaralhado nesta seed: " + nomes_de(embaralhar_seed)).c_str());
+    const float tw = W - 56 * s, bw = W - 120 * s, bh = 40 * s, x0 = p.x + 60 * s;
+    float by = p.y + hb + 66 * s;
+    for (int i = 0; i < kModes; i++) {
         const ImVec2 a(x0, by), b = a + ImVec2(bw, bh);
         char label[160];
         if (i == 2 && !seed.empty()) snprintf(label, sizeof label, "%s (seed %s)", mode_labels[i], seed.c_str());
@@ -703,23 +758,53 @@ void draw_mode(ui::Ctx& c) {
         if (mode_enabled(i)) ui::button(c, a, b, label, i == mode_sel && !busy());
         else {
             c.d->AddRectFilled(a, b, ui::rgba(40, 32, 22, 200));
-            ui::text_mid_centre(c, c.f.body, 18 * s, (a.x + b.x) * 0.5f, (a.y + b.y) * 0.5f, ui::kDim, "Randomizer: continuar (sem seed ainda)");
+            ui::text_mid_centre(c, c.f.body, 17 * s, (a.x + b.x) * 0.5f, (a.y + b.y) * 0.5f, ui::kDim, "Randomizer: continuar (sem seed ainda)");
         }
         hits.add(a.x, a.y, b.x, b.y, menu_hit::kButton, i);
-        by += bh + 12 * s;
+        by += bh + 10 * s;
     }
+    // (as caixas: o que o "novo jogo" embaralha)
+    by += 8 * s;
+    ui::text_mid(c, c.f.strong, 16.5f * s, x0, by + 10 * s, ui::kAccent, "O que embaralhar no novo jogo");
+    by += 26 * s;
+    const float rh = 34 * s;
+    for (int k = 0; k < kOpcoes; k++) {
+        const int row = kModes + k;
+        const bool pronto = *opcoes[k].id != 0, sel = row == mode_sel && !busy();
+        const ImVec2 a(x0, by), b = a + ImVec2(bw, rh);
+        if (sel) c.d->AddRectFilled(a, b, ui::rgba(92, 70, 38, 220), 3 * s), c.d->AddRect(a, b, ui::kGoldHi, 3 * s, 0, 1.5f * s);
+        const float bx = a.x + 12 * s, bs = 20 * s, cy = (a.y + b.y) * 0.5f;
+        const ImVec2 c0(bx, cy - bs * 0.5f), c1 = c0 + ImVec2(bs, bs);
+        c.d->AddRectFilled(c0, c1, ui::rgba(22, 17, 11, 240), 2 * s);
+        c.d->AddRect(c0, c1, pronto ? ui::kAccent : ui::kDim, 2 * s, 0, 1.5f * s);
+        if (marcada[k] && pronto) {   // (o visto)
+            const ImVec2 v[3] = {c0 + ImVec2(bs * 0.2f, bs * 0.52f), c0 + ImVec2(bs * 0.42f, bs * 0.75f), c0 + ImVec2(bs * 0.82f, bs * 0.25f)};
+            c.d->AddPolyline(v, 3, ui::kGoldHi, 0, 3 * s);
+        }
+        ui::text_mid(c, c.f.body, 17 * s, bx + bs + 14 * s, cy, pronto ? (sel ? ui::kInkBright : ui::kInk) : ui::kDim, opcoes[k].nome);
+        hits.add(a.x, a.y, b.x, b.y, menu_hit::kButton, row);
+        by += rh + 4 * s;
+    }
+    // (a explicacao da linha escolhida, ou o estado da geracao)
     const int st = gen_state.load();
-    const char* msg = nullptr;
-    std::string err;
-    if (st == 1) msg = "Gerando a seed... (uns 10 segundos)";
+    std::string msg;
+    ImU32 col = ui::kSoft;
+    if (st == 1) msg = "Gerando a seed (" + nomes_de(lista_marcadas()) + ")... uns 10 segundos.";
     else if (st == 2) msg = "Seed pronta. Reiniciando o jogo...";
     else if (st == 3) {
         std::lock_guard lk(gen_mu);
-        err = gen_error;
-        msg = err.c_str();
-    } else if (mode_sel == 1 && rando_save) msg = "O save randomizer atual é guardado numa pasta com a data.";
-    if (msg) ui::para(c, c.f.body, 15.5f * s, ImVec2(p.x + 28 * s, q.y - 50 * s), st == 3 ? ui::rgba(255, 120, 100) : ui::kSoft, msg, tw);
-    const ui::Prompt pr[] = {{ui::kUpDown, "Escolher"}, {ui::kConfirm, "Confirmar"}, {ui::kBack, "Voltar"}};
+        msg = gen_error, col = ui::rgba(255, 120, 100);
+    } else if (!aviso.empty()) msg = aviso, col = ui::rgba(255, 190, 110);
+    else if (mode_sel == 0) msg = "A campanha de sempre (saves em user\\save). Não muda nada nos arquivos do jogo.";
+    else if (mode_sel == 1) {
+        const std::string l = lista_marcadas();
+        msg = l.empty() ? "Marque abaixo pelo menos uma opção pronta." :
+              "Gera uma seed nova com: " + nomes_de(l) + ". Só vale para um NOVO JOGO, com saves separados: a sua campanha "
+              "normal fica intocada." + std::string(rando_save ? " O save randomizer atual é guardado numa pasta com a data." : "");
+    } else if (mode_sel == 2) msg = "Volta para a seed atual e o save randomizer dela.";
+    else msg = opcoes[mode_sel - kModes].explica;
+    ui::para(c, c.f.body, 15.5f * s, ImVec2(p.x + 28 * s, by + 10 * s), col, msg.c_str(), tw);
+    const ui::Prompt pr[] = {{ui::kUpDown, "Escolher"}, {ui::kConfirm, "Confirmar / marcar"}, {ui::kBack, "Voltar"}};
     ui::prompt_bar(c, pr, 3);
 }
 
@@ -732,23 +817,24 @@ void tick_mode(const bool* press, bool mouse, const MkwVkPointer& ptr, int mx, i
         return;
     }
     if (busy()) return;   // (gerando: nada muda)
+    auto usable = [](int r) { return r >= kModes || mode_enabled(r); };
     bool go = press[7];
     if (mouse) {
         const menu_hit::Hit hit = hits.at((float)mx, (float)my);
-        if (hit.part == menu_hit::kButton && hit.index >= 0 && hit.index < 3 && mode_enabled(hit.index)) {
-            if (hit.index != mode_sel && (ptr.pressed || ptr.held)) mode_sel = hit.index, changed = true;
+        if (hit.part == menu_hit::kButton && hit.index >= 0 && hit.index < kRows && usable(hit.index)) {
+            if (hit.index != mode_sel && (ptr.pressed || ptr.held)) mode_sel = hit.index, aviso.clear(), changed = true;
             if (ptr.pressed & HOS_MOUSE_LEFT) mode_sel = hit.index, go = true;
         }
         if (ptr.pressed & HOS_MOUSE_RIGHT) open_now = false, page = 0, changed = true;
     }
-    if (press[1] || press[2] || press[3] || press[4]) {
-        const int dir_ = press[2] || press[4] ? 1 : -1;
-        for (int i = 0; i < 3; i++) {
-            mode_sel = (mode_sel + 3 + dir_) % 3;
-            if (mode_enabled(mode_sel)) break;
+    if (press[1] || press[2]) {
+        const int dir_ = press[2] ? 1 : -1;
+        for (int i = 0; i < kRows; i++) {
+            mode_sel = (mode_sel + kRows + dir_) % kRows;
+            if (usable(mode_sel)) break;
         }
         if (gen_state.load() == 3) gen_state = 0;
-        changed = true;
+        aviso.clear(), changed = true;
     }
     if (press[5]) {
         open_now = false, page = 0, changed = true;
@@ -756,12 +842,21 @@ void tick_mode(const bool* press, bool mouse, const MkwVkPointer& ptr, int mx, i
     }
     if (!go) return;
     changed = true;
+    aviso.clear();
+    if (mode_sel >= kModes) {   // (uma caixa)
+        const int k = mode_sel - kModes;
+        if (!*opcoes[k].id) aviso = "Esta opção ainda não está pronta.";
+        else marcada[k] = !marcada[k], gravar_marcadas();
+        return;
+    }
     if (mode_sel == 0) {
         if (!rando) open_now = false, page = 0;   // (ja e o normal)
         else if (write_mode("normal")) restart_game();
     } else if (mode_sel == 2) {
         if (rando) open_now = false, page = 0;   // (ja e esta seed)
         else if (write_mode("randomizer")) restart_game();
+    } else if (lista_marcadas().empty()) {
+        aviso = "Marque pelo menos uma opção pronta (baús das masmorras ou do mundo).";
     } else {
         generate();
     }

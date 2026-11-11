@@ -40,6 +40,10 @@ B/Esc/F7/botão: fecha. Mostra o mapa da área, os ícones do próprio jogo, o q
 - **Randomizer: novo jogo**: roda `python randomizer.py --saida D:\hookshot\zelda\randomizer.novo` (~10 s), põe a seed no lugar,
   guarda o `user\save_randomizer` anterior como `save_randomizer.backup-<data>`, grava `zelda\modo.txt` e **reinicia o jogo**.
 - **Randomizer: continuar**: volta para a seed atual (reinicia).
+- **O que embaralhar** (caixas, como nas opções do Ship of Harkinian, cada uma com a explicação embaixo): baús das masmorras,
+  baús do mundo; lojas, NPCs/quests e músicas aparecem como "em breve" (precisam trocar o item na hora da entrega, no runtime).
+  A escolha fica em `zelda\embaralhar.txt` e vai para o gerador (`--embaralhar masmorras,mundo`); a seed guarda a dela em
+  `randomizer\embaralhar.txt`.
 - No modo randomizer: `host/mods.c` põe `zelda\randomizer\romfs` por cima da RomFS; `host/nn_fs.c` usa `user\save_randomizer`
   (copia `option.sav`/`account.sav` da campanha normal na primeira vez); `host/prompts.c` serve `zelda\randomizer\rsizetable.zs`.
 
