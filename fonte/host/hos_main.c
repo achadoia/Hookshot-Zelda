@@ -550,6 +550,17 @@ static void oot_inventory_refresh(Ctx *c, int64_t now) {
         int child = 1;
         rx_option_set(OOT_CHEAT_AGE_ID, loaded && oot_gamedata_bool(c, 0xcea220d3u, &child) ? (child ? 0 : 1) : -1);
     }
+    {   /* (Zelda: AchadoIA) randomizer: puxar a bomba e "levantar" (como a flor-bomba), e o Remake so deixa com o Bracelete Goron;
+           no jogo original a bolsa sempre vem depois dele. Com a bolsa de um bau e sem o bracelete, o bracelete entra junto */
+        int hos_zelda_rando(void);
+        static int given;
+        if (loaded && !given && hos_zelda_rando() && oot_item_count(c, "Item_BombBag_Small") > 0 &&
+            oot_item_count(c, "Item_Gauntlet_Goron") == 0) {
+            given = 1;
+            hos_log("zelda: bolsa de bombas sem o Bracelete Goron: o bracelete entra (status %d)",
+                    oot_pouch_change(c, "Item_Gauntlet_Goron", 1));
+        }
+    }
     if (!probed && oot_pouch_count(c, "Item_DekuSeed") >= 0) {
         probed = 1;   /* (one line naming every count, both spellings: which names the pouch knows) */
         static const char *const probes[] = {OOT_CHEAT_ITEM_PROBES};
