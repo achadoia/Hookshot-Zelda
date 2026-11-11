@@ -2,3 +2,5 @@ build.log
 aplicar.out
 __pycache__/
 conflitos/
+aplicar_saida.txt
+build.log

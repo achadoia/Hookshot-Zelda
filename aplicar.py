@@ -27,7 +27,7 @@ import time
 AQUI = os.path.dirname(os.path.abspath(__file__))
 BUILDER = os.path.join(os.environ["LOCALAPPDATA"], "HookshotBuilder")
 NOVOS = ["gpu/vk/zelda_ids.h", "gpu/vk/zelda_notas.h"]   # (arquivos que o builder nao tem)
-MARCA = b"(Zelda: AchadoIA)"
+MARCA = b"(Zelda: AchadoIA"   # (sem o ")": um comentario nosso pode continuar depois do nome)
 
 
 def versao_do_builder():
@@ -107,7 +107,8 @@ def juntar(tools, versao):
             continue
         atual = open(b, "rb").read()
         lf = lambda p: open(p, "rb").read().replace(b"\r\n", b"\n")   # (CRLF de um editor nao conta como mudanca)
-        if MARCA in atual or atual.replace(b"\r\n", b"\n") == lf(o):   # (ja aplicado nesta versao, ou o original de sempre)
+        norm = sem_selo(atual).replace(b"\r\n", b"\n")
+        if MARCA in atual or norm == lf(o) or norm == lf(f):   # (ja aplicado nesta versao, ou o original de sempre)
             planos.append((rel, lf(f), None))
             continue
         # versao nova: 3 vias (o novo, a base antiga, o nosso), as tres em LF
