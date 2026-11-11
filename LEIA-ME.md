@@ -24,6 +24,7 @@ guarda as mudanças nesses arquivos e recompila a pasta do jogo com elas.
 | Menu Insert > Controls | Linha nova **"Mapa do Zelda: botão"**: Nenhum, L3, R3... (salva como `zelda_mapa_pad`). |
 | Tela de título | Selo no canto inferior esquerdo: modo atual (NORMAL / RANDOMIZER + seed) e a tecla. |
 | Randomizer | Embaralha os 98 baús de item (E:\OoT-Notas\randomizer). Só **novo jogo**, saves separados. |
+| Correr no B | Segurando B com o analógico inclinado (0,15 s), o jogo recebe A segurado: rola e corre como segurando A. O toque de B continua só B (cancelar, descer da escada). Só em jogo; `correr_b=0` em `zelda\config.ini` desliga. |
 | Cutscenes (randomizer) | A seed tira a trava `SkipSetting/DisableSkip` da abertura (Dm_Kokiri_0000) e dos créditos: com isso todas as cutscenes aceitam o pular do jogo. (As outras nunca tiveram trava; o fundo do título fica como está.) |
 
 ### Mapa (página 6)
@@ -46,7 +47,7 @@ na ResourceSizeTable (a margem original é de ~284 bytes). O gerador agora grava
 
 ## Arquivos em `D:\hookshot\zelda`
 - `modo.txt` — `normal` ou `randomizer` (lido no início).
-- `config.ini` — `python=` e `randomizer=` (o gerador).
+- `config.ini` — `python=` e `randomizer=` (o gerador); `correr_b=1|0`.
 - `notas\` — `dados.txt` + `mapas\*.rgba.zst` + `icones\*.rgba.zst`, gerados por `ferramentas\gerar_notas.py` a partir de
   `D:\NS2-IA\notas\0400486024DEC000` (E:\OoT-Notas\tools\gerar_notas.py / icones_notas.py).
 - `randomizer\` — a seed atual (`romfs\`, `rsizetable.zs`, `seed.txt`, `spoiler.txt`); `randomizer.anterior\` a de antes.
@@ -56,7 +57,8 @@ na ResourceSizeTable (a margem original é de ~284 bytes). O gerador agora grava
 - `gpu/vk/zelda_ids.h` (novo) — ids do estado ao vivo (5000–5004), `zelda_fnv`, a pasta `zelda` e o modo.
 - `gpu/vk/zelda_notas.h` (novo) — dados, imagens (zstd → ImTextureData), save, flags ao vivo, páginas 6 e 7, selo.
 - `gpu/vk/vk_menu.cpp` — F7 (tecla 17), botão do controle, linha nos Controles, páginas, selo, `menu_option_set`.
-- `host/hos_main.c` — `zelda_push_state` no gancho do Link.
+- `host/hos_main.c` — `zelda_push_state` no gancho do Link; marca a hora da última atualização do Link (`hos_zelda_link_ns`).
+- `host/nn_hid.c` — correr no B (`zelda_b_dash`).
 - `host/oot_menu.c` — avisa quando uma tela de menu do jogo está na frente (o selo do título).
 - `host/mods.c` — `hos_zelda_rando`, `hos_zelda_dir`, a camada da seed.
 - `host/nn_fs.c` — `save_randomizer`.

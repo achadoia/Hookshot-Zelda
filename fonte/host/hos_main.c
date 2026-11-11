@@ -1025,6 +1025,10 @@ static void oot_update_player_cheats(Ctx *c, uint64_t actor, uint64_t components
     oot_teleport_followup(c);
     oot_inventory_refresh(c, now);
     zelda_push_state(c, actor, now);
+    {   /* (Zelda: AchadoIA) nn_hid.c: correr no B so em jogo */
+        extern volatile int64_t hos_zelda_link_ns;
+        __atomic_store_n(&hos_zelda_link_ns, now, __ATOMIC_RELAXED);
+    }
     oot_player_speed(c, components);
     if (action >= OOT_CHEAT_ITEM_ACTION && action < OOT_CHEAT_ITEM_ACTION + 256 * (int)OOT_ITEM_COUNT) {
         oot_inventory_edit(c, action);
