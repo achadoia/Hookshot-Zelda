@@ -215,26 +215,85 @@ static class Patch
     }
 
     // ---- os dados na pasta do jogo ----
-    public static void DadosDoJogo(string jogo)
+    // o Python que vem com o Hookshot Builder (já tem zstandard): roda o randomizer e os geradores de mods, sem instalar nada
+    static string PythonDoBuilder(string tools) { return tools == null ? null : Path.Combine(tools, "python", "python.exe"); }
+
+    public static void DadosDoJogo(string jogo, string tools)
     {
         var z = Path.Combine(jogo, "zelda");
         Directory.CreateDirectory(z);
         if (!File.Exists(Path.Combine(z, "modo.txt"))) File.WriteAllText(Path.Combine(z, "modo.txt"), "normal\n");
-        if (!File.Exists(Path.Combine(z, "config.ini")))
-            File.WriteAllText(Path.Combine(z, "config.ini"), "python=" + (AcharNoPath("python.exe") ?? "python") + "\n" +
-                              "randomizer=E:\\OoT-Notas\\randomizer\\randomizer.py\ncorrer_b=1\n");
-        int n = 0;
+        int n = 0, nc = 0, nm = 0;
         using (var pk = Pacote())
             foreach (var e in pk.Entries)
             {
-                if (!e.FullName.StartsWith("notas/") || e.FullName.EndsWith("/")) continue;
-                var dst = Path.Combine(z, e.FullName.Replace('/', '\\'));
-                if (File.Exists(dst)) continue;   // (não mexe no que já está lá)
-                Directory.CreateDirectory(Path.GetDirectoryName(dst));
-                e.ExtractToFile(dst);
-                n++;
+                if (e.FullName.EndsWith("/")) continue;
+                if (e.FullName.StartsWith("notas/"))
+                {
+                    var dst = Path.Combine(z, e.FullName.Replace('/', '\\'));
+                    if (File.Exists(dst)) continue;   // (não mexe no que já está lá)
+                    Directory.CreateDirectory(Path.GetDirectoryName(dst));
+                    e.ExtractToFile(dst);
+                    n++;
+                }
+                else if (e.FullName.StartsWith("codigo/"))   // (o código sempre na versão deste exe)
+                {
+                    var dst = Path.Combine(z, e.FullName.Replace('/', '\\'));
+                    Directory.CreateDirectory(Path.GetDirectoryName(dst));
+                    e.ExtractToFile(dst, true);
+                    nc++;
+                }
+                else if (e.FullName.StartsWith("mods/"))      // (mods prontos: só os que faltam)
+                {
+                    var dst = Path.Combine(jogo, e.FullName.Replace('/', '\\'));
+                    if (File.Exists(dst)) continue;
+                    Directory.CreateDirectory(Path.GetDirectoryName(dst));
+                    e.ExtractToFile(dst);
+                    nm++;
+                }
             }
         Log(n > 0 ? "Dados do mapa/tracker: " + n + " arquivos novos em " + z + "\\notas." : "Dados do mapa e do tracker já estão no jogo.");
+        Log("Randomizer e geradores de mods: " + nc + " arquivos em " + z + "\\codigo.");
+        Log(nm > 0 ? "Mods prontos: " + nm + " arquivos novos em " + Path.Combine(jogo, "mods") + "." : "Os mods prontos já estão no jogo.");
+        AjustarConfig(z, tools);
+    }
+
+    // config.ini: o que não existe neste PC passa a apontar para o Python do builder e para o randomizer de zelda\codigo
+    static void AjustarConfig(string z, string tools)
+    {
+        var p = Path.Combine(z, "config.ini");
+        var linhas = File.Exists(p) ? File.ReadAllLines(p).ToList() : new List<string> { "correr_r=1" };
+        string py = PythonDoBuilder(tools), rando = Path.Combine(z, "codigo", "randomizer", "randomizer.py");
+        Func<string, string> valor = k => { var l = linhas.FirstOrDefault(x => x.StartsWith(k + "=")); return l == null ? null : l.Substring(k.Length + 1).Trim(); };
+        Action<string, string> por = (k, v) => { linhas.RemoveAll(x => x.StartsWith(k + "=")); linhas.Insert(0, k + "=" + v); };
+        var atual = valor("randomizer");
+        if (atual == null || !File.Exists(atual)) { por("randomizer", rando); Log("config.ini: randomizer = " + rando); }
+        atual = valor("python");
+        if ((atual == null || !File.Exists(atual)) && py != null && File.Exists(py)) { por("python", py); Log("config.ini: python = " + py); }
+        File.WriteAllLines(p, linhas);
+    }
+
+    // os mods gerados no PC a partir do jogo instalado (Dark Link: modelo, escudo, espada, aura + tabela de tamanhos);
+    // depois da recompilação, que refaz prompts\rsizetable.zs
+    public static void ModsGerados(string jogo, string tools)
+    {
+        var py = PythonDoBuilder(tools);
+        var script = Path.Combine(jogo, "zelda", "codigo", "mods", "dark_link.py");
+        if (py == null || !File.Exists(py) || !File.Exists(script)) { Log("Mod do Dark Link: sem o Python do builder ou o script, pulei."); return; }
+        var psi = new ProcessStartInfo(py, "-I -u -X utf8 \"" + script + "\" --jogo \"" + jogo + "\"")
+        {
+            UseShellExecute = false, CreateNoWindow = true, RedirectStandardOutput = true, RedirectStandardError = true,
+            StandardOutputEncoding = Encoding.UTF8, StandardErrorEncoding = Encoding.UTF8,
+        };
+        Log("Gerando o mod do Dark Link...");
+        using (var pr = new Process { StartInfo = psi })
+        {
+            pr.OutputDataReceived += (s, e) => { if (e.Data != null) Log("  " + e.Data); };
+            pr.ErrorDataReceived += (s, e) => { if (e.Data != null) Log("  " + e.Data); };
+            pr.Start(); pr.BeginOutputReadLine(); pr.BeginErrorReadLine();
+            pr.WaitForExit();
+            Log(pr.ExitCode == 0 ? "Mod do Dark Link pronto." : "O mod do Dark Link falhou (código " + pr.ExitCode + "); o resto do patch está ok.");
+        }
     }
     static string AcharNoPath(string exe)
     {
@@ -301,11 +360,12 @@ static class Patch
         else
         {
             if (!Juntar(tools, versao)) return 4;
-            DadosDoJogo(jogo);
+            DadosDoJogo(jogo, tools);
         }
-        if (!recompilar) { Log("Pronto (sem recompilar)."); return 0; }
+        if (!recompilar) { if (!remover) ModsGerados(jogo, tools); Log("Pronto (sem recompilar)."); return 0; }
         Backup(jogo);
         int r = Recompilar(tools, jogo);
+        if (r == 0 && !remover) ModsGerados(jogo, tools);
         Log(r == 0 ? (remover ? "Pronto: o jogo voltou a ser o Hookshot original." : "Pronto! Pode abrir o jogo.") : "A recompilação falhou (veja o log acima).");
         return r == 0 ? 0 : 5;
     }
