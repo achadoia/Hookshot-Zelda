@@ -870,12 +870,16 @@ static void read_input(uint64_t *buttons, int32_t stick[4]) {
     if (keys[0] || keys[1] || keys[2] || keys[3]) player_used();
 }
 
-/* (Zelda: AchadoIA) correr no R: no Remake correr e segurar A (o toque de A rola). Segurando R com o analogico inclinado,
-   o jogo recebe A segurado (corre como segurando A) e nao recebe o R (o escudo nao sobe); R parado, sem o analogico,
-   continua sendo o R. O B nao muda nada (era o "correr no B": rolava e corria no B, removido a pedido). So com o Link
-   sendo atualizado (o gancho do Link em hos_main.c: em jogo, nao no titulo), fora do menu Insert, da camera livre e do
-   voo. Desliga com correr_r=0 em <pasta>\zelda\config.ini */
+/* (Zelda: AchadoIA) correr no R, SO correr (sem a cambalhota). No Remake o A faz as duas coisas: o toque do A com o
+   analogico inclinado rola, e o A mantido segurado corre. Entao o R entrega o A ao jogo num momento em que o analogico
+   esta parado (o jogo nao rola sem direcao) e depois devolve o analogico com o A ainda segurado (corre):
+     R + analogico inclinado -> fase 1 (correr_r_pausa_ms, padrao 120 ms): analogico zerado; na 1a metade sem A, na 2a
+     com A (o aperto do A cai sem direcao: nao rola) -> fase 2: A segurado + analogico de verdade (corre), ate soltar o R.
+   O R nunca chega ao jogo enquanto corre (o escudo nao sobe); R sem o analogico, antes de correr, continua sendo o R.
+   So com o Link sendo atualizado (o gancho do Link em hos_main.c: em jogo, nao no titulo), fora do menu Insert, da
+   camera livre e do voo. Desliga com correr_r=0 em <pasta>\zelda\config.ini */
 volatile int64_t hos_zelda_link_ns;   /* hos_main.c: a ultima atualizacao do Link */
+static int zelda_r_pause_ms = 120;
 static int zelda_r_dash_on(void) {
     static int on = -1;
     if (on < 0) {
@@ -885,20 +889,45 @@ static int zelda_r_dash_on(void) {
         on = 1;
         FILE *f = fopen(p, "r");
         if (f) {
-            while (fgets(line, sizeof line, f))
+            while (fgets(line, sizeof line, f)) {
                 if (!strncmp(line, "correr_r=", 9)) on = atoi(line + 9) != 0;
+                if (!strncmp(line, "correr_r_pausa_ms=", 18)) zelda_r_pause_ms = atoi(line + 18);
+            }
             fclose(f);
         }
-        hos_log("zelda: correr no R %s (config.ini correr_r)", on ? "ligado" : "desligado");
+        if (zelda_r_pause_ms < 34) zelda_r_pause_ms = 34;
+        if (zelda_r_pause_ms > 500) zelda_r_pause_ms = 500;
+        hos_log("zelda: correr no R %s, pausa %d ms (config.ini correr_r, correr_r_pausa_ms)", on ? "ligado" : "desligado",
+                zelda_r_pause_ms);
     }
     return on;
 }
-static uint64_t zelda_r_dash(uint64_t buttons, const int32_t stick[4], int blocked) {
+static uint64_t zelda_r_dash(uint64_t buttons, int32_t stick[4], int blocked) {
+    static int phase;   /* 0 nada, 1 pausa (analogico zerado), 2 correndo */
+    static int64_t since;
+    const int64_t now = hos_now_ns();
     const int r = !!(buttons & (1ULL << B_R));
     const int tilted = (int64_t)stick[0] * stick[0] + (int64_t)stick[1] * stick[1] > (int64_t)16384 * 16384;
-    const int in_play = hos_now_ns() - __atomic_load_n(&hos_zelda_link_ns, __ATOMIC_RELAXED) < 200000000LL;
-    if (!r || !tilted || blocked || !in_play || !zelda_r_dash_on()) return buttons;
-    return (buttons & ~(1ULL << B_R)) | 1ULL << B_A;
+    const int in_play = now - __atomic_load_n(&hos_zelda_link_ns, __ATOMIC_RELAXED) < 200000000LL;
+    if (!r || blocked || !in_play || !zelda_r_dash_on()) {
+        phase = 0;
+        return buttons;
+    }
+    if (phase == 0) {
+        if (!tilted) return buttons;   /* R parado: o R de sempre */
+        phase = 1, since = now;
+    }
+    buttons &= ~((1ULL << B_R) | (1ULL << B_A));
+    if (phase == 1) {
+        const int64_t t = now - since, pause = zelda_r_pause_ms * 1000000LL;
+        if (t < pause) {
+            stick[0] = stick[1] = 0;
+            if (t >= pause / 2) buttons |= 1ULL << B_A;
+            return buttons;
+        }
+        phase = 2;
+    }
+    return buttons | 1ULL << B_A;
 }
 
 static void vibration_send(uint64_t handle, uint64_t value);

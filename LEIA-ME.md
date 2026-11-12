@@ -28,7 +28,7 @@ guarda as mudanças nesses arquivos e recompila a pasta do jogo com elas.
 | Menu F1 > **Mods** (aba nova) | Uma linha por pasta de `D:\hookshot\mods` com `romfs` (até 24), Ligado/Desligado. Desligar grava o nome em `zelda\mods_desligados.txt`, que `host/mods.c` pula no início; ao fechar o menu ele pergunta se reinicia (uma linha escondida "Mods" ocupa um só lugar dos 16 de reinício). (O HUD do Tempo, hora + rupias, foi tirado a pedido: o relógio dele lia `*(0x84e7eab0)+0x578` vtable `+0x30`, rupias pelo getter de Int `f_80857070`, hash `0xa77921d7`; no jogo mostrou `--:--` e 0.) |
 | Olho só no Link | `ferramentas\olho_so_link.py <iris .bntx.zs do mod> <pasta do mod>`: os mods de olho trocam a íris de TODOS os personagens (`Tex/Eye_Inner_Iris_CmnTex_Chara_Eye_Alb`). O script renomeia, só nos modelos do Link (Player_Child/Adult), para `Lnk_Inner_Iris_...` (mesmo tamanho, só o começo: as árvores radix dos dicionários comparam do fim) e grava a textura com esse nome. |
 | Randomizer | Embaralha os 98 baús de item (E:\OoT-Notas\randomizer). Só **novo jogo**, saves separados. |
-| Correr no R | Segurando R com o analógico inclinado, o jogo recebe A segurado (corre como no A) e não recebe o R (o escudo não sobe); R parado continua R. O B é só B (o antigo "correr no B" rolava/corria no B: removido). Só em jogo; `correr_r=0` em `zelda\config.ini` desliga. |
+| Correr no R | Só corre, sem a cambalhota. O A do Remake faz as duas coisas (toque com o analógico inclinado = rola, A segurado = corre); com R + analógico inclinado o jogo recebe uma pausa curta com o analógico zerado e o A apertado nela (sem direção não rola), depois o analógico volta com o A segurado (corre) até soltar o R. O R não chega ao jogo enquanto corre; R parado continua R. Só em jogo; `correr_r=0` desliga, `correr_r_pausa_ms=120` (34–500) ajusta a pausa, em `zelda\config.ini`. |
 | Bracelete (randomizer) | Puxar a bomba é "levantar" (como a flor-bomba) e o Remake só deixa com o Bracelete Goron. Com a bolsa de bombas de um baú e sem o bracelete, o bracelete entra junto (`hos_main.c`, `oot_inventory_refresh`). |
 | Tracker de itens | Menu Insert > Gameplay: "Tracker de itens" (liga), "Tracker: opacidade", "Tracker: tamanho". Uma coluna fina na esquerda, só em jogo, com os ícones do Remake (`ferramentas\gerar_tracker.py` -> `zelda\notas\tracker`): itens, equipamento, upgrades, pedras, medalhões, músicas; aceso = tem, apagado = falta, munição com a quantidade. |
 | Cutscenes (randomizer) | A seed tira a trava `SkipSetting/DisableSkip` da abertura (Dm_Kokiri_0000) e dos créditos: com isso todas as cutscenes aceitam o pular do jogo. (As outras nunca tiveram trava; o fundo do título fica como está.) |
@@ -57,7 +57,7 @@ na ResourceSizeTable (a margem original é de ~284 bytes). O gerador agora grava
 
 ## Arquivos em `D:\hookshot\zelda`
 - `modo.txt` — `normal` ou `randomizer` (lido no início).
-- `config.ini` — `python=` e `randomizer=` (o gerador); `correr_r=1|0`.
+- `config.ini` — `python=` e `randomizer=` (o gerador); `correr_r=1|0`, `correr_r_pausa_ms=` (padrão 120).
 - `notas\` — `dados.txt` + `mapas\*.rgba.zst` + `icones\*.rgba.zst`, gerados por `ferramentas\gerar_notas.py` a partir de
   `D:\NS2-IA\notas\0400486024DEC000` (E:\OoT-Notas\tools\gerar_notas.py / icones_notas.py).
 - `randomizer\` — a seed atual (`romfs\`, `rsizetable.zs`, `seed.txt`, `spoiler.txt`); `randomizer.anterior\` a de antes.
